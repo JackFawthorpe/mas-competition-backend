@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "a1bb4161-83aa-4702-88b0-875193e26614",
+		"name": "mas-competition",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26094542"
+	},
+	"item": [
+		{
+			"name": "authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jessionID = pm.response.cookies.find(cookie => cookie.name === 'JSESSIONID');\r",
+									"\r",
+									"if (jessionID) {\r",
+									"    pm.collectionVariables.set(\"JSESSIONID\", jessionID.value);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"\r",
+					"const jsessionId = pm.environment.get('JSESSIONID');\r",
+					"\r",
+					"if (jsessionId) {\r",
+					"    pm.request.headers.add({\r",
+					"        key: 'Cookie',\r",
+					"        value: `JSESSIONID=${jsessionId}`\r",
+					"    });\r",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "email",
+			"value": "admin"
+		},
+		{
+			"key": "baseURL",
+			"value": "http://localhost:4000/api/v1"
+		},
+		{
+			"key": "password",
+			"value": "admin"
+		}
+	]
+}
