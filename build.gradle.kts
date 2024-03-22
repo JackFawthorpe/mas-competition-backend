@@ -13,7 +13,8 @@ repositories {
 dependencies {
 
     // MariaDB
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.0.4")
+    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
 
     // Springboot
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter

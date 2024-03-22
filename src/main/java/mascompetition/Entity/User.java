@@ -3,6 +3,7 @@ package mascompetition.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.util.UUID;
 /**
  * JPA entity for the representation of a user
  */
+@Builder()
 @Entity
 @Data
 @AllArgsConstructor

@@ -1,10 +1,10 @@
 package mascompetition.Authentication;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +22,9 @@ public class EndpointSecurityConfiguration {
     private static final String LOGIN_ENDPOINT = "/api/v1/login";
     private static final String LOGOUT_ENDPOINT = "/api/v1/logout";
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     /**
      * Creates an Authentication manager that is responsible for authenticating http requests based on the logged in user
      *
@@ -33,13 +36,8 @@ public class EndpointSecurityConfiguration {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(authenticationProvider());
+        authenticationManagerBuilder.authenticationProvider(authenticationService);
         return authenticationManagerBuilder.build();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        return new AuthenticationService();
     }
 
     /**
@@ -57,6 +55,8 @@ public class EndpointSecurityConfiguration {
                 ).formLogin(formLogin ->
                         formLogin
                                 .loginProcessingUrl(LOGIN_ENDPOINT)
+                                .defaultSuccessUrl("/", false)
+                                .failureUrl(LOGIN_ENDPOINT)
                                 .usernameParameter("email")
                                 .passwordParameter("password")
                                 .permitAll()
@@ -64,7 +64,8 @@ public class EndpointSecurityConfiguration {
                         logout
                                 .logoutUrl(LOGOUT_ENDPOINT)
                                 .deleteCookies("JSESSIONID")
-                                .invalidateHttpSession(true))
+                                .invalidateHttpSession(true)
+                                .logoutSuccessUrl(LOGIN_ENDPOINT))
                 .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();

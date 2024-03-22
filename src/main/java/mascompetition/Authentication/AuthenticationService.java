@@ -1,6 +1,7 @@
 package mascompetition.Authentication;
 
 
+import jakarta.validation.constraints.NotNull;
 import mascompetition.Entity.User;
 import mascompetition.Repository.UserRepository;
 import org.slf4j.Logger;
@@ -11,19 +12,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class AuthenticationService implements AuthenticationProvider {
     Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-
-    public AuthenticationService() {
-        super();
-    }
-
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
     UserRepository userRepository;
 
@@ -32,11 +27,11 @@ public class AuthenticationService implements AuthenticationProvider {
      * @return Given a valid authentication it returns a token to identify the user
      */
     @Override
-    public Authentication authenticate(Authentication authentication) {
+    public Authentication authenticate(@NotNull Authentication authentication) throws BadCredentialsException {
         String email = String.valueOf(authentication.getName());
         String password = String.valueOf(authentication.getCredentials());
 
-        if (email == null || email.isEmpty() || authentication.getCredentials() == null || password.isEmpty()) {
+        if (authentication.getName() == null || email.isEmpty() || authentication.getCredentials() == null || password.isEmpty()) {
             logger.info("Authentication failed because: missing email || password");
             throw new BadCredentialsException("Bad Credentials");
         }
