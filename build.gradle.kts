@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("io.freefair.lombok") version "8.6"
 }
 
 group = "personal.project"
@@ -11,10 +12,9 @@ repositories {
 
 dependencies {
 
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.0.4")
-    // Lombok
-    // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.30")
+    // MariaDB
+    // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
 
     // Springboot
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter
@@ -35,6 +35,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:3.2.3")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-logging
     implementation("org.springframework.boot:spring-boot-starter-logging:3.2.3")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
+    implementation("org.springframework.boot:spring-boot-starter-security:3.2.3")
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-test
+    testImplementation("org.springframework.security:spring-security-test:6.2.3")
+
 }
 
 tasks.test {
