@@ -22,6 +22,8 @@ public class EndpointSecurityConfiguration {
     private static final String LOGIN_ENDPOINT = "/api/v1/login";
     private static final String LOGOUT_ENDPOINT = "/api/v1/logout";
 
+    private static final String ADMIN_API_MATCHER = "/api/v1/admin/**";
+
     @Autowired
     AuthenticationService authenticationService;
 
@@ -51,6 +53,7 @@ public class EndpointSecurityConfiguration {
         http.authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(LOGIN_ENDPOINT).permitAll()
+                                .requestMatchers(ADMIN_API_MATCHER).hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 ).formLogin(formLogin ->
                         formLogin
