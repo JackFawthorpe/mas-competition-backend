@@ -35,12 +35,12 @@
 							"formdata": [
 								{
 									"key": "email",
-									"value": "User-1@email.com",
+									"value": "{{email}}",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "ValidPassword1!",
+									"value": "{{password}}",
 									"type": "text"
 								}
 							]
