@@ -5,12 +5,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Data transfer object for {@link mascompetition.Entity.User}
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDTO {
 
     @Email(message = "Please provide a valid email address")

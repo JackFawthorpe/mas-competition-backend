@@ -15,7 +15,7 @@ public class BaseController {
      * @param result The results of the validation
      * @throws BadInformationException Thrown when the provided information is invalid
      */
-    protected void validateEndpoint(BindingResult result) throws BadInformationException {
+    public void validateEndpoint(BindingResult result) throws BadInformationException {
         if (result.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
             for (FieldError error : result.getFieldErrors()) {

@@ -2,6 +2,9 @@ package mascompetition;
 
 
 import mascompetition.Entity.User;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -9,7 +12,8 @@ import java.util.UUID;
 /**
  * Tests extend this fixture which provides default models
  */
-public class UnitTestFixture {
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
+public class BaseTestFixture {
 
     public static String HASHED_ADMIN_PASSWORD = "$2a$10$7hZKRE1GM3dLBw23sIl4qOqb6Ze8OijNGqzHFBs3kfdGQKHOJ4AeC";
 
