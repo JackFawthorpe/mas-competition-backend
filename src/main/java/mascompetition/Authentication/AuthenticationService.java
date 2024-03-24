@@ -49,7 +49,7 @@ public class AuthenticationService implements AuthenticationProvider {
         }
 
         logger.info("Authentication Succeeded for user: {}", user.getId());
-        return new UsernamePasswordAuthenticationToken(user.getEmail(), null, user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user.getEmail(), authentication.getCredentials(), user.getAuthorities());
     }
 
     /**

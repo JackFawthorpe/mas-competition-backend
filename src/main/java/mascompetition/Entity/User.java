@@ -22,11 +22,15 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @Column
+
+    @Column(unique = true)
     private String email;
+
     @Column
     private String hashedPassword;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
     private List<Authority> authorities;
 
     public User() {

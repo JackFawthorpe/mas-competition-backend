@@ -1,0 +1,58 @@
+package mascompetition.API.v1;
+
+import jakarta.validation.Valid;
+import mascompetition.API.BaseController;
+import mascompetition.BLL.UserService;
+import mascompetition.DTO.UserDTO;
+import mascompetition.Exception.BadInformationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Controller to handle the administrative endpoints
+ */
+@RestController
+@RequestMapping("/api/v1/admin")
+public class AdminController extends BaseController {
+
+    Logger logger = LoggerFactory.getLogger(AdminController.class);
+
+    @Autowired
+    UserService userService;
+
+    /**
+     * Endpoint for adding users to the database
+     *
+     * @param users         The users to add to the database
+     * @param bindingResult The results of the validation against the UserDTO's
+     * @return 201 if the users are created successfully otherwise handled by errorMapper
+     * @throws BadInformationException Thrown if the emails or passwords are invalid
+     */
+    @PostMapping("/users")
+    public ResponseEntity<List<UUID>> addUsers(@RequestBody @Valid List<UserDTO> users, BindingResult bindingResult) throws BadInformationException {
+        logger.info("POST /api/v1/admin/users by user {}", userService.getCurrentUser().getId());
+
+        validateEndpoint(bindingResult);
+
+        try {
+            List<UUID> userIds = userService.createUsers(users);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userIds);
+        } catch (DataIntegrityViolationException e) {
+            logger.info("Duplicate email present, rolling back user creation");
+            throw new BadInformationException("Duplicate email detected");
+        }
+    }
+
+}

@@ -1,25 +1,21 @@
 package mascompetition.unit.Authentication;
 
 import mascompetition.Authentication.AuthenticationService;
+import mascompetition.BaseTestFixture;
 import mascompetition.Repository.UserRepository;
-import mascompetition.UnitTestFixture;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.*;
 
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-class AuthenticationServiceTest extends UnitTestFixture {
+class AuthenticationServiceTest extends BaseTestFixture {
 
     @InjectMocks
     AuthenticationService authenticationService;

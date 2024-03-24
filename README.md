@@ -1,11 +1,12 @@
-
 # mas-competition-backend
 
 ## Local Development
 
 ### Database
+
 Pre-requisites: Docker  
-From the root directory  
+From the root directory
+
 ```
 cd ./docker  
 docker compose up
@@ -20,3 +21,16 @@ password: password
 
 Once you are adminer you will want to create a database called ```mascompetition```
 
+### Default Users
+
+Administrator
+
+```
+email: admin
+password: admin
+```
+
+### Creating users
+
+You can create more users by using the postman endpoint suite. Simply hit the login endpoint as the administrator and
+then use the AddUsers endpoint

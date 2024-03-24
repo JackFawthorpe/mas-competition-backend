@@ -3,7 +3,7 @@ plugins {
     id("io.freefair.lombok") version "8.6"
 }
 
-group = "personal.project"
+group = "mascompetition"
 version = "1.0-SNAPSHOT"
 
 repositories {
