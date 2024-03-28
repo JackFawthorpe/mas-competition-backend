@@ -34,7 +34,7 @@ jobs:
         run: chmod u+x ./docker/staging/buildStaging.sh
 
       - name: Build Docker Image
-        run: ./docker/staging/buildStaging.sh
+        run: echo ${{ secrets.USERPWD }} | sudo ./docker/staging/buildStaging.sh
 
   deploy:
     runs-on: self-hosted
