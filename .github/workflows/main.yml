@@ -31,10 +31,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Permissions
-        run: chmod u+x ./docker/staging/stagingContainer.sh
+        run: chmod u+x ./docker/staging/buildStaging.sh
 
       - name: Build Docker Image
-        run: ./docker/staging/stagingContainer.sh
+        run: ./docker/staging/buildStaging.sh
 
   deploy:
     runs-on: self-hosted
