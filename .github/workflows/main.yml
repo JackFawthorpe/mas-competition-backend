@@ -2,7 +2,7 @@ name: mas-competition-backend-deployment
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   test:
