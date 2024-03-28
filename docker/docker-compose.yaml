@@ -1,15 +1,38 @@
-version: '3.1'
+version: "3.1"
 
 services:
-  db:
+  mas-database:
+    container_name: mas-database
     image: mariadb
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: mascompetition
+      MARIADB_USER: user
+      MARIADB_PASSWORD: password
     ports:
       - "3306:3306"
+    networks:
+      - mynetwork
+
   adminer:
+    container_name: mas-adminer
     image: adminer
     restart: always
     ports:
       - "8080:8080"
+    networks:
+      - mynetwork
+
+  mas-competition-backend:
+    depends_on:
+      - mas-database
+    image: mas-backend
+    ports:
+      - "4500:4500"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
