@@ -15,7 +15,7 @@ jobs:
         run: chmod u+x ./gradlew
 
       - name: Start Test DB
-        run: echo ${{ secrets.USERPWD }} | sudo docker compose -f ./docker/dev/docker-compose.yaml up
+        run: echo ${{ secrets.USERPWD }} | sudo docker compose -f ./docker/dev/docker-compose.yaml up -d
 
       - name: Run Backend Tests
         run: ./gradlew test
@@ -44,4 +44,4 @@ jobs:
         run: |
           cd ./docker/staging
           echo ${{ secrets.USERPWD }} | sudo docker compose down
-          echo ${{ secrets.USERPWD }} | sudo docker compose up
+          echo ${{ secrets.USERPWD }} | sudo docker compose up  -d
