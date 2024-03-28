@@ -1,0 +1,35 @@
+name: mas-competition-backend-deployment
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Backend Tests
+        run: ./gradlew test
+
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: ./docker/stagingContainer.sh
+
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Restart Server
+        run: |
+          cd ./docker/staging
+          docker compose down
+          docker compose up

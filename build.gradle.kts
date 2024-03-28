@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("io.freefair.lombok") version "8.6"
+    id("org.springframework.boot") version "3.2.3"
 }
 
 group = "mascompetition"
