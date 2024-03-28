@@ -7,26 +7,32 @@ on:
 jobs:
   test:
     runs-on: self-hosted
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Permissions
+        run: chmod u+x ./gradlew
 
       - name: Run Backend Tests
         run: ./gradlew test
 
   build:
     runs-on: self-hosted
-
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Permissions
+        run: chmod u+x ./docker/stagingContainer.sh
 
       - name: Build Docker Image
         run: ./docker/stagingContainer.sh
 
   deploy:
     runs-on: self-hosted
+    needs: build
     steps:
       - name: Restart Server
         run: |
