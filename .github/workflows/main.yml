@@ -15,13 +15,13 @@ jobs:
         run: chmod u+x ./gradlew
 
       - name: Start Test DB
-        run: docker-compose -f ./docker/dev/docker-compose.yml up
+        run: docker compose -f ./docker/dev/docker-compose.yaml up
 
       - name: Run Backend Tests
         run: ./gradlew test
 
       - name: Stopping Test DB
-        run: docker-compose -f ./docker/dev/docker-compose.yml down
+        run: docker compose -f ./docker/dev/docker-compose.yaml down
 
   build:
     runs-on: self-hosted
