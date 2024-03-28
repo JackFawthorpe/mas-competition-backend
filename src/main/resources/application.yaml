@@ -2,7 +2,7 @@ spring:
   application:
     name: mas-competition-backend
   datasource:
-    url: jdbc:mariadb://localhost:3306/mascompetition
+    url: jdbc:mariadb://localhost:2300/mascompetition
     driverClassName: org.mariadb.jdbc.Driver
     username: user
     password: password
@@ -10,4 +10,4 @@ spring:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate.ddl-auto: update
 server:
-  port: 4500
+  port: 4300

@@ -1,0 +1,22 @@
+version: "3.1"
+
+services:
+  mas-database-dev:
+    container_name: mas-database-dev
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: mascompetition
+      MARIADB_USER: user
+      MARIADB_PASSWORD: password
+      port:
+    ports:
+      - "2300:3306"
+
+  adminer-dev:
+    container_name: mas-adminer-dev
+    image: adminer
+    restart: always
+    ports:
+      - "8300:8080"
