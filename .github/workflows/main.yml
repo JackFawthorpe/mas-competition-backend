@@ -8,10 +8,11 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
+      - name: Clear workspace
+        run: rm -rf $GITHUB_WORKSPACE/*
+
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          clean: true
 
       - name: Cache repository
         uses: actions/cache@v2
