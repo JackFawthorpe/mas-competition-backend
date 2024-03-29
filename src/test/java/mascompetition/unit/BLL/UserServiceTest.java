@@ -2,7 +2,7 @@ package mascompetition.unit.BLL;
 
 import mascompetition.BLL.UserService;
 import mascompetition.BaseTestFixture;
-import mascompetition.DTO.UserDTO;
+import mascompetition.DTO.UserLoginDTO;
 import mascompetition.Entity.User;
 import mascompetition.Repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -66,7 +66,7 @@ class UserServiceTest extends BaseTestFixture {
 
     @Test
     void createUsers_NonemptyList_SavesAllUsers() {
-        List<UserDTO> users = List.of(new UserDTO("email1", "password"), new UserDTO("email2", "password"));
+        List<UserLoginDTO> users = List.of(new UserLoginDTO("email1", "password"), new UserLoginDTO("email2", "password"));
 
         userService.createUsers(users);
         ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);

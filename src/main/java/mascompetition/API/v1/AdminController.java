@@ -3,7 +3,7 @@ package mascompetition.API.v1;
 import jakarta.validation.Valid;
 import mascompetition.API.BaseController;
 import mascompetition.BLL.UserService;
-import mascompetition.DTO.UserDTO;
+import mascompetition.DTO.UserLoginDTO;
 import mascompetition.Exception.BadInformationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class AdminController extends BaseController {
      * @throws BadInformationException Thrown if the emails or passwords are invalid
      */
     @PostMapping("/users")
-    public ResponseEntity<List<UUID>> addUsers(@RequestBody @Valid List<UserDTO> users, BindingResult bindingResult) throws BadInformationException {
+    public ResponseEntity<List<UUID>> addUsers(@RequestBody @Valid List<UserLoginDTO> users, BindingResult bindingResult) throws BadInformationException {
         logger.info("POST /api/v1/admin/users by user {}", userService.getCurrentUser().getId());
 
         validateEndpoint(bindingResult);

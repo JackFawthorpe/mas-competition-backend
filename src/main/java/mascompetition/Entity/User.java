@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * JPA entity for the representation of a user
  */
-@Builder()
+@Builder
 @Entity
 @Data
 @AllArgsConstructor

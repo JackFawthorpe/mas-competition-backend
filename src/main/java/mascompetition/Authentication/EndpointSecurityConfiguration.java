@@ -26,6 +26,10 @@ public class EndpointSecurityConfiguration {
 
     @Autowired
     AuthenticationService authenticationService;
+    @Autowired
+    MasAuthenticationResponseHandler masAuthenticationResponseHandler;
+    @Autowired
+    MasAuthenticationLogoutResponseHandler masAuthenticationLogoutResponseHandler;
 
     /**
      * Creates an Authentication manager that is responsible for authenticating http requests based on the logged in user
@@ -58,15 +62,17 @@ public class EndpointSecurityConfiguration {
                 ).formLogin(formLogin ->
                         formLogin
                                 .loginProcessingUrl(LOGIN_ENDPOINT)
-                                .defaultSuccessUrl("/", false)
-                                .failureUrl(LOGIN_ENDPOINT)
+                                .successHandler(masAuthenticationResponseHandler)
+                                .failureHandler(masAuthenticationResponseHandler)
                                 .usernameParameter("email")
                                 .passwordParameter("password")
+
                                 .permitAll()
                 ).logout(logout ->
                         logout
                                 .logoutUrl(LOGOUT_ENDPOINT)
                                 .deleteCookies("JSESSIONID")
+                                .logoutSuccessHandler(masAuthenticationLogoutResponseHandler)
                                 .invalidateHttpSession(true)
                                 .logoutSuccessUrl(LOGIN_ENDPOINT))
                 .csrf(AbstractHttpConfigurer::disable);

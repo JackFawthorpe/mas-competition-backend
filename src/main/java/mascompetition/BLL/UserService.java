@@ -1,7 +1,7 @@
 package mascompetition.BLL;
 
 import jakarta.validation.constraints.NotNull;
-import mascompetition.DTO.UserDTO;
+import mascompetition.DTO.UserLoginDTO;
 import mascompetition.Entity.User;
 import mascompetition.Repository.UserRepository;
 import org.slf4j.Logger;
@@ -53,10 +53,10 @@ public class UserService {
      * @throws DataIntegrityViolationException thrown when database transaction is unsuccessful. This will primarily be duplicate email
      */
     @Transactional
-    public List<UUID> createUsers(@NotNull List<UserDTO> users) throws DataIntegrityViolationException {
+    public List<UUID> createUsers(@NotNull List<UserLoginDTO> users) throws DataIntegrityViolationException {
         logger.info("Attempting to persist users");
         List<UUID> ids = new ArrayList<>();
-        for (UserDTO user : users) {
+        for (UserLoginDTO user : users) {
             ids.add(createUser(user));
         }
         return ids;
@@ -68,7 +68,7 @@ public class UserService {
      * @param toCreate A validated DTO to persist
      * @return The UUID of the user created
      */
-    private UUID createUser(@NotNull UserDTO toCreate) {
+    private UUID createUser(@NotNull UserLoginDTO toCreate) {
         User createdUser = userRepository.save(
                 User.builder()
                         .email(toCreate.getEmail())
