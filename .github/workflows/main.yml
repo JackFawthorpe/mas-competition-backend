@@ -8,8 +8,8 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      # - name: Clean previous run
-      #   run: echo ${{ secrets.USERPWD }} | sudo rm -rf /home/jfa93/github-backend-actions-runner/_work/mas-competition-backend/mas-competition-backend/build/
+      - name: Clean previous run
+        run: echo ${{ secrets.USERPWD }} | sudo rm -rf ${{ github.workspace }}/mas-competition-backend/build/
 
       - name: Checkout code
         uses: actions/checkout@v4
