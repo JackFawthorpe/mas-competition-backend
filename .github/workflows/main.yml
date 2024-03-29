@@ -12,9 +12,6 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      - name: Checking secrets
-        run: echo ${PRODUCTION_DB_USER}
-
       - name: Clear workspace
         run: echo ${{ secrets.USERPWD }} | sudo rm -rf $GITHUB_WORKSPACE/*
 
@@ -75,6 +72,11 @@ jobs:
     runs-on: self-hosted
     needs: test
     steps:
+      - name: create-env-file
+        run: |
+          echo "PRODUCTION_DB_USER=${{ secrets.PRODUCTION_DB_USER }}" > ./docker/production/.env
+          echo "PRODUCTION_DB_PASSWORD=${{ secrets.PRODUCTION_DB_PASSWORD }}" >> ./docker/production/.env
+
       - name: Restore cached repository
         uses: actions/cache@v2
         with:

@@ -8,6 +8,8 @@ services:
       MARIADB_DATABASE: mascompetition
       MARIADB_USER: ${PRODUCTION_DB_USER}
       MARIADB_PASSWORD: ${PRODUCTION_DB_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "2000:3306"
     volumes:
