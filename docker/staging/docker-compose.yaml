@@ -11,14 +11,13 @@ services:
       port:
     ports:
       - "2500:3306"
+
   adminer-staging:
     container_name: mas-adminer-staging
     image: adminer
     restart: always
     ports:
       - "8500:8080"
-    network_mode: host
-
   mas-competition-backend-staging:
     image: mas-competition-backend-staging
     restart: always
