@@ -11,8 +11,6 @@ services:
       port:
     ports:
       - "2500:3306"
-    network_mode: host
-
   adminer-staging:
     container_name: mas-adminer-staging
     image: adminer
@@ -28,4 +26,3 @@ services:
       - mas-database-staging
     ports:
       - "4500:4500"
-    network_mode: host

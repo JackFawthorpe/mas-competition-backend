@@ -5,8 +5,8 @@ spring:
     # Within a bridged network localhost includes the other containers
     url: jdbc:mariadb://mas-database-production:3306/mascompetition
     driverClassName: org.mariadb.jdbc.Driver
-    username: ${PRODUCTION_DB_USER}
-    password: ${PRODUCTION_DB_PASSWORD}
+    username: user
+    password: password
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate.ddl-auto: update
