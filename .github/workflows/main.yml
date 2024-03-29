@@ -12,6 +12,9 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
+      - name: Checking secrets
+        run: echo ${PRODUCTION_DB_USER}
+
       - name: Clear workspace
         run: echo ${{ secrets.USERPWD }} | sudo rm -rf $GITHUB_WORKSPACE/*
 

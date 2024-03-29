@@ -10,6 +10,8 @@ services:
       MARIADB_PASSWORD: ${PRODUCTION_DB_PASSWORD}
     ports:
       - "2000:3306"
+    volumes:
+      - mariadb-volume:/var/lib/mysql
 
   mas-competition-backend-production:
     image: mas-competition-backend-production
@@ -18,3 +20,6 @@ services:
       - mas-database-production
     ports:
       - "4000:4000"
+
+volumes:
+  mariadb-volume:
