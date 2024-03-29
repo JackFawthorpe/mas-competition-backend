@@ -6,13 +6,12 @@ import org.springframework.util.MultiValueMap;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthenticationTest extends IntegrationTestFixture {
 
     @Test
-    void login_bluesky_302() throws Exception {
+    void login_bluesky_200() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
@@ -22,12 +21,11 @@ class AuthenticationTest extends IntegrationTestFixture {
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(status().isOk());
     }
 
     @Test
-    void login_wrongPassword_302() throws Exception {
+    void login_wrongPassword_400() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
@@ -37,12 +35,11 @@ class AuthenticationTest extends IntegrationTestFixture {
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/api/v1/login"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void login_noPassword_302() throws Exception {
+    void login_noPassword_400() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
@@ -51,12 +48,11 @@ class AuthenticationTest extends IntegrationTestFixture {
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/api/v1/login"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void login_incorrectEmail_302() throws Exception {
+    void login_incorrectEmail_400() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "@email.com");
@@ -66,12 +62,11 @@ class AuthenticationTest extends IntegrationTestFixture {
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/api/v1/login"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void login_noEmail_302() throws Exception {
+    void login_noEmail_400() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("password", "wrong_password");
@@ -80,12 +75,11 @@ class AuthenticationTest extends IntegrationTestFixture {
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/api/v1/login"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void logout_bluesky_302() throws Exception {
+    void logout_bluesky_200() throws Exception {
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
@@ -98,6 +92,6 @@ class AuthenticationTest extends IntegrationTestFixture {
                 .andReturn();
 
         mockMvc.perform(post("/api/v1/logout"))
-                .andExpect(redirectedUrl("/api/v1/login"));
+                .andExpect(status().isOk());
     }
 }
