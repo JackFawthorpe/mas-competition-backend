@@ -18,6 +18,7 @@ services:
     restart: always
     ports:
       - "8500:8080"
+
   mas-competition-backend-staging:
     image: mas-competition-backend-staging
     restart: always

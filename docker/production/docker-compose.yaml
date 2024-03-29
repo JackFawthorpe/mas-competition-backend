@@ -8,12 +8,15 @@ services:
       MARIADB_DATABASE: mascompetition
       MARIADB_USER: user
       MARIADB_PASSWORD: password
-    env_file:
-      - .env
     ports:
       - "2000:3306"
-    volumes:
-      - mariadb-volume:/var/lib/mysql
+
+  adminer-production:
+    container_name: mas-adminer-production
+    image: adminer
+    restart: always
+    ports:
+      - "8000:8080"
 
   mas-competition-backend-production:
     image: mas-competition-backend-production
@@ -22,6 +25,3 @@ services:
       - mas-database-production
     ports:
       - "4000:4000"
-
-volumes:
-  mariadb-volume:
