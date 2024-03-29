@@ -2,7 +2,6 @@ spring:
   application:
     name: mas-competition-backend
   datasource:
-    # Within a bridged network localhost includes the other containers
     url: jdbc:mariadb://mas-database-production:3306/mascompetition
     driverClassName: org.mariadb.jdbc.Driver
     username: user

@@ -2,9 +2,7 @@ spring:
   application:
     name: mas-competition-backend
   datasource:
-    # Within a bridged network localhost includes the other containers
-    # On the VM this will be accessible through port 2500
-    url: jdbc:mariadb://host.docker.internal:2500/mascompetition
+    url: jdbc:mariadb://mas-database-staging:3306/mascompetition
     driverClassName: org.mariadb.jdbc.Driver
     username: user
     password: password
