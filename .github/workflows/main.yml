@@ -8,11 +8,10 @@ jobs:
   test:
     runs-on: self-hosted
     steps:
-      - name: Setup checkout
-        run: chmod u+x ${{ github.workspace}}/*
-
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          clean: true
 
       - name: Cache repository
         uses: actions/cache@v2
