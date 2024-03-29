@@ -12,13 +12,6 @@ services:
     ports:
       - "2000:3306"
 
-  adminer-production:
-    container_name: mas-adminer-production
-    image: adminer
-    restart: always
-    ports:
-      - "8000:8080"
-
   mas-competition-backend-production:
     image: mas-competition-backend-production
     restart: always
