@@ -29,7 +29,7 @@ jobs:
       - name: Stopping Test DB
         run: echo ${{ secrets.USERPWD }} | sudo docker compose -f ./docker/dev/docker-compose.yaml down
 
-  build:
+  build-staging:
     runs-on: self-hosted
     needs: test
     steps:
@@ -45,9 +45,9 @@ jobs:
       - name: Build Docker Image
         run: echo ${{ secrets.USERPWD }} | sudo ./docker/staging/buildStaging.sh
 
-  deploy:
+  deploy-staging:
     runs-on: self-hosted
-    needs: build
+    needs: build-staging
     steps:
       - name: Restore cached repository
         uses: actions/cache@v2
@@ -58,5 +58,37 @@ jobs:
       - name: Restart Server
         run: |
           cd ./docker/staging
+          echo ${{ secrets.USERPWD }} | sudo docker compose down
+          echo ${{ secrets.USERPWD }} | sudo docker compose up  -d
+
+  build-production:
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - name: Restore cached repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/repo
+          key: ${{ runner.os }}-repo-${{ hashFiles('.git/index') }}
+
+      - name: Permissions
+        run: chmod u+x ./docker/production/buildProduction.sh && chmod u+x ./gradlew
+
+      - name: Build Docker Image
+        run: echo ${{ secrets.USERPWD }} | sudo ./docker/production/buildProduction.sh
+
+  deploy-production:
+    runs-on: self-hosted
+    needs: build-production
+    steps:
+      - name: Restore cached repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/repo
+          key: ${{ runner.os }}-repo-${{ hashFiles('.git/index') }}
+
+      - name: Restart Server
+        run: |
+          cd ./docker/production
           echo ${{ secrets.USERPWD }} | sudo docker compose down
           echo ${{ secrets.USERPWD }} | sudo docker compose up  -d

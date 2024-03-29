@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: mas-competition-backend
+  datasource:
+    # Within a bridged network localhost includes the other containers
+    url: jdbc:mariadb://host.docker.internal:2000/mascompetition
+    driverClassName: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate.ddl-auto: update
+server:
+  port: 4000

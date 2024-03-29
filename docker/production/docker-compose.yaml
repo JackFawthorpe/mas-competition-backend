@@ -1,0 +1,28 @@
+services:
+  mas-database-production:
+    container_name: mas-database-production
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${PRODUCTION_DB_PASSWORD}
+      MARIADB_DATABASE: mascompetition
+      MARIADB_USER: ${PRODUCTION_DB_PASSWORD}
+      MARIADB_PASSWORD: ${PRODUCTION_DB_PASSWORD}
+      port:
+    ports:
+      - "2000:3306"
+
+  adminer-production:
+    container_name: mas-adminer-production
+    image: adminer
+    restart: always
+    ports:
+      - "8000:8080"
+
+  mas-competition-backend-production:
+    image: mas-competition-backend-production
+    restart: always
+    depends_on:
+      - mas-database-production
+    ports:
+      - "4000:4000"
