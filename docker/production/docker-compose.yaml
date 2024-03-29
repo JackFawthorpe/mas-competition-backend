@@ -4,10 +4,10 @@ services:
     image: mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: ${PRODUCTION_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: password
       MARIADB_DATABASE: mascompetition
-      MARIADB_USER: ${PRODUCTION_DB_USER}
-      MARIADB_PASSWORD: ${PRODUCTION_DB_PASSWORD}
+      MARIADB_USER: user
+      MARIADB_PASSWORD: password
     env_file:
       - .env
     ports:
