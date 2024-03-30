@@ -2,7 +2,9 @@ package mascompetition.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mascompetition.BaseTestFixture;
+import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
+import mascompetition.Repository.TeamRepository;
 import mascompetition.Repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +33,24 @@ public class IntegrationTestFixture extends BaseTestFixture {
     @MockBean
     protected UserRepository userRepository;
 
+    @MockBean
+    protected TeamRepository teamRepository;
+
     protected ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void resetMocks() {
+        lenient().when(userRepository.findByEmail("user")).thenReturn(getUser().build());
         lenient().when(userRepository.save(any())).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
             user.setId(UUID.randomUUID());
             return user;
         });
 
-        lenient().when(userRepository.findByEmail("user")).thenReturn(getUser().build());
+        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> {
+            Team team = invocation.getArgument(0);
+            team.setId(UUID.randomUUID());
+            return team;
+        });
     }
 }

@@ -121,6 +121,40 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "CreateTeam",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\"Default Team\"",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/admin/teams",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"admin",
+								"teams"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -162,7 +196,7 @@
 		},
 		{
 			"key": "baseURL",
-			"value": "http://localhost:4000/api/v1"
+			"value": "http://localhost:4300/api/v1"
 		},
 		{
 			"key": "password",

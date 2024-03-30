@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 /**
@@ -25,7 +25,7 @@ public class BaseTestFixture {
     public User.UserBuilder getUser() {
 
         return User.builder()
-                .authorities(new ArrayList<>())
+                .authorities(new HashSet<>())
                 .email("default@email.com")
                 .id(UUID.randomUUID())
                 .hashedPassword("Encoded Password");
