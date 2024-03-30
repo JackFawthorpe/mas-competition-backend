@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WithMockUser(roles = {"ADMIN"})
 class AdminAPITest extends IntegrationTestFixture {
@@ -123,5 +122,65 @@ class AdminAPITest extends IntegrationTestFixture {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toSend))
                 .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Default Team", "Team 1", "111111", "teamteamteamteamteam"})
+    void createTeam_bluesky_201(String teamName) throws Exception {
+
+        mockMvc.perform(post("/api/v1/admin/teams")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"" + teamName + "\""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value(teamName));
+
+        verify(teamRepository, times(1)).save(any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"12311", "teamteamteamteamteam1", "asdasd!", "team12\n", "team12;", "te<am12"})
+    void createTeam_InvalidTeamName_400(String teamName) throws Exception {
+
+        mockMvc.perform(post("/api/v1/admin/teams")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"" + teamName + "\""))
+                .andExpect(status().isBadRequest());
+
+        verify(teamRepository, times(0)).save(any());
+    }
+
+    @Test
+    @WithMockUser
+    void createTeam_notAnAdmin_403() throws Exception {
+        mockMvc.perform(post("/api/v1/admin/team")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"Default Team\""))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    void createTeam_DuplicateTeamName_400() throws Exception {
+
+        when(teamRepository.save(any())).thenThrow(new DataIntegrityViolationException("Not user facing"));
+
+        mockMvc.perform(post("/api/v1/admin/teams")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"Default Team\""))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid Data Provided: Duplicate team name detected"));
+
+        verify(teamRepository, times(0)).save(any());
+    }
+
+
+    @Test
+    void createTeam_NoBody_400() throws Exception {
+
+        mockMvc.perform(post("/api/v1/admin/teams"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Request does not match API requirements"));
+
+        verify(teamRepository, times(0)).save(any());
     }
 }

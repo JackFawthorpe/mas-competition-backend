@@ -79,7 +79,7 @@ public class AdminController extends BaseController {
             return ResponseEntity.status(HttpStatus.CREATED).body(teamService.createTeam(team));
         } catch (DataIntegrityViolationException e) {
             logger.info("Duplicate team name, team creation discarded");
-            throw new BadInformationException("Duplicate team name");
+            throw new BadInformationException("Duplicate team name detected");
         }
     }
 
