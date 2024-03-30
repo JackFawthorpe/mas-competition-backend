@@ -14,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles the authentication process for users that are logging in
+ */
 @Service
 public class AuthenticationService implements AuthenticationProvider {
     Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
@@ -36,12 +39,10 @@ public class AuthenticationService implements AuthenticationProvider {
             throw new BadCredentialsException("Bad Credentials");
         }
 
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> {
             logger.info("Authentication failed because: Email {} is not in use", email);
-            throw new BadCredentialsException("Invalid email");
-        }
+            return new BadCredentialsException("Invalid email");
+        });
 
         if (!passwordEncoder.matches(password, user.getHashedPassword())) {
             logger.info("Authentication failed because: Incorrect password provided for user {}", user.getId());

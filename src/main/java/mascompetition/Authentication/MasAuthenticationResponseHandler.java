@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import mascompetition.DTO.UserDTO;
 import mascompetition.Entity.User;
 import mascompetition.Repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,8 @@ import java.io.IOException;
 public class MasAuthenticationResponseHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Logger logger = LoggerFactory.getLogger(MasAuthenticationResponseHandler.class);
+
     @Autowired
     private UserRepository userRepository;
 
@@ -41,11 +45,14 @@ public class MasAuthenticationResponseHandler implements AuthenticationSuccessHa
      * @throws ServletException
      */
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        User user = userRepository.findByEmail(authentication.getName());
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> {
+            logger.error("Failed to find user on authentication success {}", authentication.getName());
+            return new RuntimeException(String.format("Unexpectedly failed to find user on authentication success for user %s", authentication.getName()));
+        });
 
         String body = objectMapper.writeValueAsString(
                 UserDTO.builder().id(user.getId())

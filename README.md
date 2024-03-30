@@ -27,7 +27,7 @@ Administrator
 
 ```
 email: admin
-password: admin
+password: Password1!
 ```
 
 ### Creating users
