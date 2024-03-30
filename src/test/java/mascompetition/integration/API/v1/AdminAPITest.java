@@ -170,7 +170,7 @@ class AdminAPITest extends IntegrationTestFixture {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid Data Provided: Duplicate team name detected"));
 
-        verify(teamRepository, times(0)).save(any());
+        verify(teamRepository, times(1)).save(any());
     }
 
 

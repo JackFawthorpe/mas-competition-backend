@@ -2,7 +2,8 @@ name: mas-competition-backend-deployment
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - '*'
 
 env:
   PRODUCTION_DB_USER: ${{ secrets.PRODUCTION_DB_USER }}
@@ -38,6 +39,7 @@ jobs:
 
   build-staging:
     runs-on: self-hosted
+    if: github.ref == 'refs/heads/master'
     needs: test
     steps:
       - name: Restore cached repository
@@ -54,6 +56,7 @@ jobs:
 
   deploy-staging:
     runs-on: self-hosted
+    if: github.ref == 'refs/heads/master'
     needs: build-staging
     steps:
       - name: Restore cached repository
@@ -70,6 +73,7 @@ jobs:
 
   build-production:
     runs-on: self-hosted
+    if: github.ref == 'refs/heads/master'
     needs: test
     steps:
       - name: create-env-file
@@ -91,6 +95,7 @@ jobs:
 
   deploy-production:
     runs-on: self-hosted
+    if: github.ref == 'refs/heads/master'
     needs: build-production
     steps:
       - name: Restore cached repository

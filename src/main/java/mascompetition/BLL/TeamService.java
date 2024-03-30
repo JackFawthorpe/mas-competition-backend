@@ -9,6 +9,7 @@ import mascompetition.Repository.TeamRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,8 +33,9 @@ public class TeamService {
      *
      * @param createTeamDTO A validated DTO to create a team from
      * @return A TeamDTO of the team that was persisted
+     * @throws DataIntegrityViolationException Thrown if the name of the team is already in use
      */
-    public TeamDTO createTeam(@NotNull CreateTeamDTO createTeamDTO) {
+    public TeamDTO createTeam(@NotNull CreateTeamDTO createTeamDTO) throws DataIntegrityViolationException {
         Team team = teamRepository.save(Team.builder()
                 .id(UUID.randomUUID())
                 .name(createTeamDTO.getName())

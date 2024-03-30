@@ -47,10 +47,6 @@ public class IntegrationTestFixture extends BaseTestFixture {
             return user;
         });
 
-        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> {
-            Team team = invocation.getArgument(0);
-            team.setId(UUID.randomUUID());
-            return team;
-        });
+        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
     }
 }
