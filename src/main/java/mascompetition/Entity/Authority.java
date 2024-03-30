@@ -23,10 +23,6 @@ public class Authority implements GrantedAuthority {
     @Column()
     private String role;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private User user;
-
-
     /**
      * Empty Constructor for JPA
      */
