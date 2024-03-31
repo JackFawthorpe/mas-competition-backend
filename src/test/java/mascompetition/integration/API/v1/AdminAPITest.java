@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WithMockUser(roles = {"ADMIN"})
+@WithMockUser(roles = {"ADMIN"}, username = "default@email.com")
 class AdminAPITest extends IntegrationTestFixture {
     @Test
     void addUsers_OneUser_201() throws Exception {

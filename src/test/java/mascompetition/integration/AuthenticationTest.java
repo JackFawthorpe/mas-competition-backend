@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -17,7 +20,7 @@ class AuthenticationTest extends IntegrationTestFixture {
         formData.add("email", "default@email.com");
         formData.add("password", "admin");
 
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
+        when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build()));
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
@@ -27,11 +30,11 @@ class AuthenticationTest extends IntegrationTestFixture {
     @Test
     void login_wrongPassword_400() throws Exception {
 
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
+
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
         formData.add("password", "wrong_password");
-
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
@@ -44,7 +47,7 @@ class AuthenticationTest extends IntegrationTestFixture {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("email", "default@email.com");
 
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
+        when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build()));
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
@@ -58,7 +61,7 @@ class AuthenticationTest extends IntegrationTestFixture {
         formData.add("email", "@email.com");
         formData.add("password", "wrong_password");
 
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
+        when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build()));
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
@@ -71,7 +74,7 @@ class AuthenticationTest extends IntegrationTestFixture {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("password", "wrong_password");
 
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
+        when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build()));
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))
@@ -85,7 +88,7 @@ class AuthenticationTest extends IntegrationTestFixture {
         formData.add("email", "default@email.com");
         formData.add("password", "admin");
 
-        when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build());
+        when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().hashedPassword(HASHED_ADMIN_PASSWORD).build()));
 
         mockMvc.perform(post("/api/v1/login")
                         .params(formData))

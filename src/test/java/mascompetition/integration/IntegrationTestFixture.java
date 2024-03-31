@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.lenient;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser(username = "default@email.com")
 public class IntegrationTestFixture extends BaseTestFixture {
 
     @Autowired
@@ -36,17 +39,23 @@ public class IntegrationTestFixture extends BaseTestFixture {
     @MockBean
     protected TeamRepository teamRepository;
 
+    @MockBean
+    protected PasswordEncoder passwordEncoder;
+
     protected ObjectMapper mapper = new ObjectMapper();
+
+    protected User currentUser;
 
     @BeforeEach
     void resetMocks() {
-        lenient().when(userRepository.findByEmail("user")).thenReturn(getUser().build());
-        lenient().when(userRepository.save(any())).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(UUID.randomUUID());
-            return user;
-        });
+        currentUser = getUser().build();
+        lenient().when(userRepository.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
+        lenient().when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
+        lenient().when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
+
+        lenient().when(passwordEncoder.matches(any(), any())).thenReturn(true);
+        lenient().when(passwordEncoder.encode(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 }

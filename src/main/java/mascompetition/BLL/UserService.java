@@ -1,8 +1,11 @@
 package mascompetition.BLL;
 
 import jakarta.validation.constraints.NotNull;
+import mascompetition.DTO.ChangePasswordDTO;
 import mascompetition.DTO.UserLoginDTO;
 import mascompetition.Entity.User;
+import mascompetition.Exception.BadInformationException;
+import mascompetition.Exception.EntityNotFoundException;
 import mascompetition.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +45,11 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication instanceof AnonymousAuthenticationToken
                 ? null
-                : userRepository.findByEmail(authentication.getName());
+                : userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> {
+                    logger.error("Unexpectedly failed to find user in repository {}", authentication.getName());
+                    return new RuntimeException(String.format("Unexpectedly failed to find user in repository %s", authentication.getName()));
+                });
     }
 
     /**
@@ -79,4 +86,29 @@ public class UserService {
         return createdUser.getId();
     }
 
+    /**
+     * Logic for changing the password for a user
+     *
+     * @param changePasswordDTO The new password information
+     * @param uuid              The ID of the user to change
+     * @throws EntityNotFoundException Thrown if the given UUID isn't in the database
+     * @throws BadInformationException Thrown if the currentPassword is wrong or the new password doesn't match the current
+     */
+    public void changePassword(@NotNull ChangePasswordDTO changePasswordDTO, @NotNull UUID uuid) throws EntityNotFoundException, BadInformationException {
+        User user = userRepository.findById(uuid).orElseThrow(() -> new EntityNotFoundException("The user supplied doesn't exist"));
+        if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getHashedPassword())) {
+            throw new BadInformationException("Invalid current password");
+        }
+
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new BadInformationException("Confirmation Password doesn't match New Password");
+        }
+
+        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getCurrentPassword())) {
+            throw new BadInformationException("The new password cannot match the old one");
+        }
+
+        user.setHashedPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
 }
