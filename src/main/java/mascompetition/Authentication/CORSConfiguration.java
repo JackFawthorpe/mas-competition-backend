@@ -17,6 +17,14 @@ public class CORSConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
+        registry
+                .addMapping("/**")
+                .allowedOrigins("http://localhost:3000",                 // Development
+                        "https://mas-competition.csse.canterbury.ac.nz", // Front-end assets are served from here
+                        "http://132.181.18.82"                           // Backdoor to be removed once DNS is setup
+                )
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }
