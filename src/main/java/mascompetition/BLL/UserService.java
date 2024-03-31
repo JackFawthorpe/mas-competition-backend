@@ -104,7 +104,7 @@ public class UserService {
             throw new BadInformationException("Confirmation Password doesn't match New Password");
         }
 
-        if (passwordEncoder.matches(changePasswordDTO.getNewPassword(), user.getHashedPassword())) {
+        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getCurrentPassword())) {
             throw new BadInformationException("The new password cannot match the old one");
         }
 

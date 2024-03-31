@@ -12,6 +12,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.*;
 
@@ -29,13 +31,13 @@ class AuthenticationServiceTest extends BaseTestFixture {
 
     @BeforeEach
     void resetMocks() {
-        lenient().when(passwordEncoder.matches(matches("password"), matches("Encoded Password"))).thenReturn(true);
+        lenient().when(passwordEncoder.matches(matches("password"), matches("Password1!"))).thenReturn(true);
 
         input = mock(Authentication.class);
         lenient().when(input.getName()).thenReturn("default@email.com");
         lenient().when(input.getCredentials()).thenReturn("password");
 
-        lenient().when(userRepository.findByEmail("default@email.com")).thenReturn(getUser().build());
+        lenient().when(userRepository.findByEmail("default@email.com")).thenReturn(Optional.of(getUser().build()));
     }
 
     @Test
@@ -46,7 +48,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         });
 
         verify(passwordEncoder, times(1))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(1))
                 .findByEmail(matches("default@email.com"));
@@ -64,7 +66,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Bad Credentials", error.getMessage());
 
         verify(passwordEncoder, times(0))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(0))
                 .findByEmail(matches("default@email.com"));
@@ -83,7 +85,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Bad Credentials", error.getMessage());
 
         verify(passwordEncoder, times(0))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(0))
                 .findByEmail(matches("default@email.com"));
@@ -101,7 +103,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Bad Credentials", error.getMessage());
 
         verify(passwordEncoder, times(0))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(0))
                 .findByEmail(matches("default@email.com"));
@@ -119,7 +121,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Bad Credentials", error.getMessage());
 
         verify(passwordEncoder, times(0))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(0))
                 .findByEmail(matches("default@email.com"));
@@ -128,7 +130,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
     @Test
     void authenticate_userNotFound_BadCredentials() {
 
-        when(userRepository.findByEmail(anyString())).thenReturn(null);
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         Throwable error = Assertions.assertThrows(BadCredentialsException.class, () -> {
             authenticationService.authenticate(input);
@@ -137,7 +139,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Invalid email", error.getMessage());
 
         verify(passwordEncoder, times(0))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(1))
                 .findByEmail(matches("default@email.com"));
@@ -155,7 +157,7 @@ class AuthenticationServiceTest extends BaseTestFixture {
         Assertions.assertEquals("Invalid Password", error.getMessage());
 
         verify(passwordEncoder, times(1))
-                .matches(matches("password"), matches("Encoded Password"));
+                .matches(matches("password"), matches("Password1!"));
 
         verify(userRepository, times(1))
                 .findByEmail(matches("default@email.com"));

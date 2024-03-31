@@ -28,7 +28,7 @@ public class BaseTestFixture {
                 .authorities(new HashSet<>())
                 .email("default@email.com")
                 .id(UUID.randomUUID())
-                .hashedPassword("Encoded Password");
+                .hashedPassword("Password1!");
     }
 
 }

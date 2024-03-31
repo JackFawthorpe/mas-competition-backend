@@ -1,5 +1,6 @@
 package mascompetition.API;
 
+import mascompetition.Exception.ActionForbiddenException;
 import mascompetition.Exception.BadInformationException;
 import mascompetition.Exception.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -27,7 +28,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BadInformationException.class)
     public ResponseEntity<String> handleBadInformationException(BadInformationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Data Provided: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(String.format("Invalid Data Provided: %s", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ActionForbiddenException.class)
+    public ResponseEntity<String> handleActionForbiddenException(ActionForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(String.format("Permission denied: %s", ex.getMessage()));
     }
 
 
