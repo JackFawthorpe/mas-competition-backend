@@ -3,7 +3,7 @@ name: mas-competition-backend-deployment
 on:
   push:
     branches:
-      - '*'
+      - '**'
 
 env:
   PRODUCTION_DB_USER: ${{ secrets.PRODUCTION_DB_USER }}
