@@ -138,13 +138,13 @@ public class UserService {
      *
      * @param teamID The ID of the team to add the user to
      * @param email  The email of the user
-     * @throws EntityNotFoundException Thrown if the user or the team doesnt exist
+     * @throws EntityNotFoundException Thrown if the user or the team doesn't exist
      */
     private void addUser(@NotNull UUID teamID, @NotNull String email) throws EntityNotFoundException {
         Team team = teamRepository.findById(teamID)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Team %s doesn't exist", teamID)));
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(String.format("User with email %s doesn't exist", email)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with email %s doesn't exist", email)));
 
         logger.info("Adding {} to team {}", email, teamID);
         user.setTeam(team);
