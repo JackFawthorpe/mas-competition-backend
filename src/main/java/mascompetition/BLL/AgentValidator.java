@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Component responsible for the validation of an agent prior to creation
+ */
 @Component
 public class AgentValidator {
 

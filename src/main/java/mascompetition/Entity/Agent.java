@@ -8,6 +8,9 @@ import lombok.Data;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * JPA entity for the storage of metadata from an agent
+ */
 @Builder
 @Entity
 @Data

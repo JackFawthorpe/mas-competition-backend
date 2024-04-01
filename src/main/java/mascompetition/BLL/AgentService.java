@@ -21,6 +21,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service responsible for interaction with agents
+ */
 @Service
 public class AgentService {
 

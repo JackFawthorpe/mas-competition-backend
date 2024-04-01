@@ -22,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Duration;
 import java.util.UUID;
 
+/**
+ * Controller responsible for interaction with agents
+ */
 @RestController
 @RequestMapping("/api/v1")
 public class AgentController extends BaseController {
