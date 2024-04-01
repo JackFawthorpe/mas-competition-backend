@@ -7,7 +7,9 @@ import mascompetition.BLL.UserService;
 import mascompetition.DTO.CreateTeamDTO;
 import mascompetition.DTO.TeamDTO;
 import mascompetition.DTO.UserLoginDTO;
+import mascompetition.DTO.UserToTeamDTO;
 import mascompetition.Exception.BadInformationException;
+import mascompetition.Exception.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +55,7 @@ public class AdminController extends BaseController {
         validateEndpoint(bindingResult);
 
         try {
-            List<UUID> userIds = userService.createUsers(users);
+            List<UUID> userIds = userService.batchCreateUsers(users);
             return ResponseEntity.status(HttpStatus.CREATED).body(userIds);
         } catch (DataIntegrityViolationException e) {
             logger.info("Duplicate email present, rolling back user creation");
@@ -81,6 +83,26 @@ public class AdminController extends BaseController {
             logger.info("Duplicate team name, team creation discarded");
             throw new BadInformationException("Duplicate team name detected");
         }
+    }
+
+
+    /**
+     * Endpoint for assigning users to teams
+     *
+     * @param teamUserMapping The list of mappings from users to teams
+     * @param bindingResult   The results of the validation against the UserToTeamDTO's
+     * @return 201 if the team is created successfully, otherwise the errorMapper handles the error code
+     * @throws BadInformationException Thrown if an invalid name is provided
+     */
+    @PostMapping(value = "/teams/users")
+    public ResponseEntity<String> addUsersToTeams(@RequestBody @Valid List<UserToTeamDTO> teamUserMapping, BindingResult bindingResult) throws BadInformationException, EntityNotFoundException {
+        logger.info("POST /api/v1/admin/teams/users by user {}", userService.getCurrentUser().getId());
+
+        validateEndpoint(bindingResult);
+
+        userService.batchAddUsersToTeams(teamUserMapping);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Successfully added users to teams");
     }
 
 }

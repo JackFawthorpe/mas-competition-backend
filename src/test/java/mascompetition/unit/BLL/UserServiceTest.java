@@ -127,14 +127,14 @@ class UserServiceTest extends BaseTestFixture {
 
     @Test
     void createUsers_EmptyList_EmptyList() {
-        Assertions.assertEquals(List.of(), userService.createUsers(List.of()));
+        Assertions.assertEquals(List.of(), userService.batchCreateUsers(List.of()));
     }
 
     @Test
     void createUsers_NonemptyList_SavesAllUsers() {
         List<UserLoginDTO> users = List.of(new UserLoginDTO("email1", "password"), new UserLoginDTO("email2", "password"));
 
-        userService.createUsers(users);
+        userService.batchCreateUsers(users);
         ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, times(2)).save(argumentCaptor.capture());
         List<User> capturedUsers = argumentCaptor.getAllValues();
