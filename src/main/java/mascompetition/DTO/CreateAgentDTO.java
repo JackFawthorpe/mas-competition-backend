@@ -1,10 +1,6 @@
 package mascompetition.DTO;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,20 +15,20 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateAgentDTO {
 
-    @NotNull
+    @NotNull(message = "designTime is a required field")
     public Integer designTime;
 
-    @NotBlank
-    @NotEmpty
-    @NotNull
-    @Size(min = 6, max = 64, message = "Agent name must be between 6 and 64 characters")
+    @NotBlank(message = "name is a required field")
+    @NotEmpty(message = "name is a required field")
+    @NotNull(message = "name is a required field")
+    @Size(min = 6, max = 64, message = "name must be between 6 and 64 characters")
+    @Pattern(regexp = "^[a-zA-Z]+$", message = "name can only contain letters")
     private String name;
 
-    @NotNull
+    @NotNull(message = "versionNumber is a required field")
     private Integer versionNumber;
 
-    @Valid
+    @NotNull(message = "You must provide a list of emails from your team that authored the agent")
     private List<String> emails;
-
 
 }

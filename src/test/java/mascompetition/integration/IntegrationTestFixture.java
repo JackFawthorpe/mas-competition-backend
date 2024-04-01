@@ -1,9 +1,11 @@
 package mascompetition.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mascompetition.BLL.DirectoryService;
 import mascompetition.BaseTestFixture;
 import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
+import mascompetition.Repository.AgentRepository;
 import mascompetition.Repository.TeamRepository;
 import mascompetition.Repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,22 +43,33 @@ public class IntegrationTestFixture extends BaseTestFixture {
     protected TeamRepository teamRepository;
 
     @MockBean
+    protected AgentRepository agentRepository;
+
+    @MockBean
     protected PasswordEncoder passwordEncoder;
+
+    @MockBean
+    protected DirectoryService directoryService;
 
     protected ObjectMapper mapper = new ObjectMapper();
 
     protected User currentUser;
 
     @BeforeEach
-    void resetMocks() {
+    void resetMocks() throws IOException {
         currentUser = getUser().build();
         lenient().when(userRepository.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         lenient().when(userRepository.findById(currentUser.getId())).thenReturn(Optional.of(currentUser));
-        lenient().when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
 
         lenient().when(passwordEncoder.matches(any(), any())).thenReturn(true);
         lenient().when(passwordEncoder.encode(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        lenient().doNothing().when(directoryService).saveFile(any(), any());
+        lenient().doNothing().when(directoryService).deleteFile(any());
+
+
+        lenient().when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
+        lenient().when(agentRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
     }
 }

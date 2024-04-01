@@ -40,7 +40,7 @@ public class AgentController extends BaseController {
 
         UUID createdAgentID = agentService.createAgent(createAgentDTO, agentCode);
 
-        return ResponseEntity.status(HttpStatus.OK).body(CreateAgentResponseDTO.builder()
+        return ResponseEntity.status(HttpStatus.CREATED).body(CreateAgentResponseDTO.builder()
                 .agentID(createdAgentID)
                 .timeTillNextRound(Duration.ofMinutes(5))
                 .build());
