@@ -42,6 +42,10 @@ public class User implements Serializable {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    private Set<Agent> agents;
+
+
     public User() {
         // JPA Empty Args Constructor
     }

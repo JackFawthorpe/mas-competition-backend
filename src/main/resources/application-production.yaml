@@ -11,3 +11,4 @@ spring:
     hibernate.ddl-auto: create-drop
 server:
   port: 4000
+agentStoragePath: '/home/jfa93/agents/prod/'

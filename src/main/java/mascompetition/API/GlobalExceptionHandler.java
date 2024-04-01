@@ -1,6 +1,7 @@
 package mascompetition.API;
 
 import mascompetition.Exception.ActionForbiddenException;
+import mascompetition.Exception.AgentStorageException;
 import mascompetition.Exception.BadInformationException;
 import mascompetition.Exception.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -81,6 +82,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleUnexpectedException(Exception ex) {
         logger.error("Unhandled error caught {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Generic Error Thrown");
+    }
+
+    /**
+     * {@link AgentStorageException} should never be thrown, if it does then something must've gone wrong in the validation
+     * prior to storage
+     *
+     * @param ex The error thrown
+     * @return 500 error
+     */
+    @ExceptionHandler(AgentStorageException.class)
+    public ResponseEntity<String> handleAgentStorageException(Exception ex) {
+        logger.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error in the persistence of an agent");
     }
 
 }

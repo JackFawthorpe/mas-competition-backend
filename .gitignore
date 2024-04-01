@@ -1,3 +1,7 @@
+
+### mas-competition-backend ###
+agents
+
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
