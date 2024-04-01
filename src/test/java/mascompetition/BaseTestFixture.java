@@ -1,6 +1,7 @@
 package mascompetition;
 
 
+import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +30,18 @@ public class BaseTestFixture {
                 .email("default@email.com")
                 .id(UUID.randomUUID())
                 .hashedPassword("Password1!");
+    }
+
+    /**
+     * Creates a default team for testing
+     *
+     * @return The builder to allow modifications before creation
+     */
+    public Team.TeamBuilder getTeam() {
+
+        return Team.builder()
+                .id(UUID.randomUUID())
+                .name("Default team name");
     }
 
 }

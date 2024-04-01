@@ -45,4 +45,9 @@ public class User implements Serializable {
     public User() {
         // JPA Empty Args Constructor
     }
+
+    @Override
+    public String toString() {
+        return String.format("{email=%s, id=%s}", email, id.toString());
+    }
 }

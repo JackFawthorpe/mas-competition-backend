@@ -4,8 +4,12 @@ import mascompetition.BLL.UserService;
 import mascompetition.BaseTestFixture;
 import mascompetition.DTO.ChangePasswordDTO;
 import mascompetition.DTO.UserLoginDTO;
+import mascompetition.DTO.UserToTeamDTO;
+import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import mascompetition.Exception.BadInformationException;
+import mascompetition.Exception.EntityNotFoundException;
+import mascompetition.Repository.TeamRepository;
 import mascompetition.Repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +35,9 @@ class UserServiceTest extends BaseTestFixture {
 
     @Mock
     UserRepository userRepository;
+    @Mock
+    TeamRepository teamRepository;
+
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -127,14 +134,14 @@ class UserServiceTest extends BaseTestFixture {
 
     @Test
     void createUsers_EmptyList_EmptyList() {
-        Assertions.assertEquals(List.of(), userService.createUsers(List.of()));
+        Assertions.assertEquals(List.of(), userService.batchCreateUsers(List.of()));
     }
 
     @Test
     void createUsers_NonemptyList_SavesAllUsers() {
         List<UserLoginDTO> users = List.of(new UserLoginDTO("email1", "password"), new UserLoginDTO("email2", "password"));
 
-        userService.createUsers(users);
+        userService.batchCreateUsers(users);
         ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, times(2)).save(argumentCaptor.capture());
         List<User> capturedUsers = argumentCaptor.getAllValues();
@@ -144,4 +151,67 @@ class UserServiceTest extends BaseTestFixture {
         Assertions.assertEquals("email2", capturedUsers.get(1).getEmail());
         Assertions.assertEquals("password", capturedUsers.get(1).getHashedPassword());
     }
+
+
+    @Test
+    void addUsersToTeams_EmptyList() {
+        Assertions.assertDoesNotThrow(() -> userService.batchAddUsersToTeams(List.of()));
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void addUsersToTeams_NonemptyList_SavesAllUsers() {
+        Team first = getTeam().build();
+        Team second = getTeam().build();
+        when(teamRepository.findById(first.getId())).thenReturn(Optional.of(first));
+        when(teamRepository.findById(second.getId())).thenReturn(Optional.of(second));
+
+        User firstUser = getUser().email("email1").build();
+        User secondUser = getUser().email("email2").build();
+        when(userRepository.findByEmail(firstUser.getEmail())).thenReturn(Optional.of(firstUser));
+        when(userRepository.findByEmail(secondUser.getEmail())).thenReturn(Optional.of(secondUser));
+
+        List<UserToTeamDTO> toAdd = List.of(new UserToTeamDTO(firstUser.getEmail(), first.getId()), new UserToTeamDTO(secondUser.getEmail(), second.getId()));
+
+        Assertions.assertDoesNotThrow(() -> userService.batchAddUsersToTeams(toAdd));
+
+        ArgumentCaptor<User> argumentCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository, times(2)).save(argumentCaptor.capture());
+        List<User> capturedUsers = argumentCaptor.getAllValues();
+        Assertions.assertEquals(2, capturedUsers.size());
+        Assertions.assertEquals(firstUser.getEmail(), capturedUsers.get(0).getEmail());
+        Assertions.assertEquals(first.getId(), capturedUsers.get(0).getTeam().getId());
+        Assertions.assertEquals(secondUser.getEmail(), capturedUsers.get(1).getEmail());
+        Assertions.assertEquals(second.getId(), capturedUsers.get(1).getTeam().getId());
+    }
+
+    @Test
+    void addUsersToTeams_CantFindTeam_ThrowsError() {
+        Team first = getTeam().build();
+        when(teamRepository.findById(first.getId())).thenReturn(Optional.empty());
+
+        User firstUser = getUser().email("email1").build();
+
+        List<UserToTeamDTO> toAdd = List.of(new UserToTeamDTO(firstUser.getEmail(), first.getId()));
+
+        Assertions.assertThrows(EntityNotFoundException.class, () -> userService.batchAddUsersToTeams(toAdd));
+
+        verify(userRepository, times(0)).save(any());
+    }
+
+    @Test
+    void addUsersToTeams_CantFindUser_ThrowsError() {
+        Team first = getTeam().build();
+        when(teamRepository.findById(first.getId())).thenReturn(Optional.of(first));
+
+        User firstUser = getUser().email("email1").build();
+        when(userRepository.findByEmail(firstUser.getEmail())).thenReturn(Optional.empty());
+
+        List<UserToTeamDTO> toAdd = List.of(new UserToTeamDTO(firstUser.getEmail(), first.getId()));
+
+        Assertions.assertThrows(EntityNotFoundException.class, () -> userService.batchAddUsersToTeams(toAdd));
+
+        verify(userRepository, times(0)).save(any());
+    }
+
 }

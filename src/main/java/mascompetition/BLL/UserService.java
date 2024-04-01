@@ -3,9 +3,12 @@ package mascompetition.BLL;
 import jakarta.validation.constraints.NotNull;
 import mascompetition.DTO.ChangePasswordDTO;
 import mascompetition.DTO.UserLoginDTO;
+import mascompetition.DTO.UserToTeamDTO;
+import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import mascompetition.Exception.BadInformationException;
 import mascompetition.Exception.EntityNotFoundException;
+import mascompetition.Repository.TeamRepository;
 import mascompetition.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +37,9 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private TeamRepository teamRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     /**
@@ -60,8 +66,8 @@ public class UserService {
      * @throws DataIntegrityViolationException thrown when database transaction is unsuccessful. This will primarily be duplicate email
      */
     @Transactional
-    public List<UUID> createUsers(@NotNull List<UserLoginDTO> users) throws DataIntegrityViolationException {
-        logger.info("Attempting to persist users");
+    public List<UUID> batchCreateUsers(@NotNull List<UserLoginDTO> users) throws DataIntegrityViolationException {
+        logger.info("Adding users");
         List<UUID> ids = new ArrayList<>();
         for (UserLoginDTO user : users) {
             ids.add(createUser(user));
@@ -109,6 +115,39 @@ public class UserService {
         }
 
         user.setHashedPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+
+    /**
+     * Transactional wrapper around batch adding users to teams
+     *
+     * @param teamUserMapping The list of users and the teams they will join
+     * @throws EntityNotFoundException Thrown if one of the entities provided doesn't exist
+     */
+    @Transactional
+    public void batchAddUsersToTeams(List<UserToTeamDTO> teamUserMapping) throws EntityNotFoundException {
+        logger.info("Adding users to teams");
+        for (UserToTeamDTO dto : teamUserMapping) {
+            addUser(dto.getTeamId(), dto.getUserEmail());
+        }
+    }
+
+    /**
+     * Responsible for adding users to teams
+     *
+     * @param teamID The ID of the team to add the user to
+     * @param email  The email of the user
+     * @throws EntityNotFoundException Thrown if the user or the team doesn't exist
+     */
+    private void addUser(@NotNull UUID teamID, @NotNull String email) throws EntityNotFoundException {
+        Team team = teamRepository.findById(teamID)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Team %s doesn't exist", teamID)));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User with email %s doesn't exist", email)));
+
+        logger.info("Adding {} to team {}", email, teamID);
+        user.setTeam(team);
         userRepository.save(user);
     }
 }

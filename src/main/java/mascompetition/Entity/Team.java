@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,7 +26,7 @@ public class Team {
     private String name;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "team")
-    private List<User> users;
+    private Set<User> users;
 
     public Team() {
         // JPA Empty Args Constructor
