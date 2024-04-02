@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -41,7 +42,8 @@ public class BaseTestFixture {
 
         return Team.builder()
                 .id(UUID.randomUUID())
-                .name("Default team name");
+                .name("Default team name")
+                .users(new ArrayList<>());
     }
 
 }
