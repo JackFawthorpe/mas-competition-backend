@@ -60,6 +60,7 @@ public class User implements Serializable {
         return UserDTO.builder()
                 .id(this.id)
                 .email(this.email)
+                .teamId(this.team == null ? null : this.team.getId())
                 .build();
     }
 }
