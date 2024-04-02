@@ -18,6 +18,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -69,7 +70,13 @@ public class IntegrationTestFixture extends BaseTestFixture {
 
 
         lenient().when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
+        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> {
+            Team team = invocation.getArgument(0);
+            if (team.getUsers() == null) {
+                team.setUsers(new ArrayList<>());
+            }
+            return team;
+        });
         lenient().when(agentRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
     }
 }
