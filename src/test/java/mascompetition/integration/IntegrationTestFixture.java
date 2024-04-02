@@ -69,7 +69,7 @@ public class IntegrationTestFixture extends BaseTestFixture {
 
 
         lenient().when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
+        lenient().when(teamRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         lenient().when(agentRepository.save(any())).thenAnswer(invocation -> invocation.<Team>getArgument(0));
     }
 }

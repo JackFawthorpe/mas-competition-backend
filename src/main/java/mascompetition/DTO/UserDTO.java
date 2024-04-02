@@ -18,4 +18,6 @@ public class UserDTO {
 
     private String email;
 
+    private UUID teamId;
+
 }

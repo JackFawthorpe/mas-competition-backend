@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import mascompetition.DTO.CreateTeamDTO;
 import mascompetition.DTO.TeamDTO;
 import mascompetition.Entity.Team;
-import mascompetition.Entity.User;
+import mascompetition.Exception.EntityNotFoundException;
 import mascompetition.Repository.TeamRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +43,20 @@ public class TeamService {
         logger.info("Created new team {}", team.getId());
         return TeamDTO.builder()
                 .id(team.getId())
-                .users(team.getUsers() == null
-                        ? new ArrayList<>()
-                        : team.getUsers().stream().map(User::getId).toList())
+                .users(new ArrayList<>())
                 .name(team.getName()).build();
+    }
+
+    /**
+     * Fetches a team from the database
+     *
+     * @param teamId The ID of the team to fetch
+     * @return The TeamDTO for the team
+     * @throws EntityNotFoundException
+     */
+    public TeamDTO getTeam(@NotNull UUID teamId) throws EntityNotFoundException {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new EntityNotFoundException(String.format("Failed to find team with ID %s", teamId)));
+        return team.buildDTO();
     }
 
 }

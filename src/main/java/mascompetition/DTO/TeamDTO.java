@@ -20,6 +20,6 @@ public class TeamDTO {
 
     private UUID id;
 
-    private List<UUID> users;
+    private List<UserDTO> users;
 
 }

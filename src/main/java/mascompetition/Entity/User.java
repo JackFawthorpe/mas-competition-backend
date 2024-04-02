@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import mascompetition.DTO.UserDTO;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -53,5 +54,13 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return String.format("{email=%s, id=%s}", email, id.toString());
+    }
+
+    public UserDTO buildDTO() {
+        return UserDTO.builder()
+                .id(this.id)
+                .email(this.email)
+                .teamId(this.team == null ? null : this.team.getId())
+                .build();
     }
 }

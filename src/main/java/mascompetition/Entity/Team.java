@@ -4,8 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import mascompetition.DTO.TeamDTO;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,9 +27,18 @@ public class Team {
     private String name;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "team")
-    private Set<User> users;
+    private List<User> users;
 
     public Team() {
         // JPA Empty Args Constructor
     }
+
+    public TeamDTO buildDTO() {
+        return TeamDTO.builder()
+                .id(this.getId())
+                .name(this.getName())
+                .users(this.getUsers().stream().map(User::buildDTO).toList())
+                .build();
+    }
+
 }

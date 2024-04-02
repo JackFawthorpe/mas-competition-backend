@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import mascompetition.DTO.UserDTO;
 import mascompetition.Entity.User;
 import mascompetition.Repository.UserRepository;
 import org.slf4j.Logger;
@@ -54,10 +53,7 @@ public class MasAuthenticationResponseHandler implements AuthenticationSuccessHa
             return new RuntimeException(String.format("Unexpectedly failed to find user on authentication success for user %s", authentication.getName()));
         });
 
-        String body = objectMapper.writeValueAsString(
-                UserDTO.builder().id(user.getId())
-                        .email(user.getEmail())
-                        .build());
+        String body = objectMapper.writeValueAsString(user.buildDTO());
 
         response.getWriter().write(body);
         response.getWriter().flush();
