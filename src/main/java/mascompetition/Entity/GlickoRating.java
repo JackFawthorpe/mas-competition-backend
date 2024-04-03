@@ -18,136 +18,143 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GlickoRating {
 
-    private static final float INITIAL_RATING = 1000.0f;
-    private static final float RATING_DEVIATION = 350.0f;
-    private static final float SCALE_CONSTANT = 173.7178f;
-    private static final float SYSTEM_CONSTANT = 4.49f;
-    private static final float CONVERGENCE_CONSTANT = 0.000001f;
+    private static double INITIAL_RATING = 1500f;
+    private static double INITIAL_RATING_DEVIATION = 350f;
+    private static double INITIAL_VOLATILITY = 0.06f;
+    private static double TAU = 0.5f;
 
-    // Yucky math
-    private static float kDefaultS = 0.06f;
+    private static double TRANSITION_CONSTANT = 173.7178f;
+    private static double CONVERGENCE_TOLERANCE = 0.000001f;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid")
     private UUID id;
     @Column
-    private float rating;
+    private double rating;
     @Column
-    private float deviation;
+    private double deviation;
     @Column
-    private float volatility;
+    private double volatility;
+
+    @Transient
+    private double primeVolatility;
+
+    @Transient
+    private double primePhi;
+
+    @Transient
+    private double primeMew;
 
     public GlickoRating() {
         // JPA Empty Args Constructor
     }
 
     public static GlickoRating newRating() {
-        return new GlickoRating(UUID.randomUUID(), INITIAL_RATING, RATING_DEVIATION, kDefaultS);
+        return GlickoRating.builder()
+                .id(UUID.randomUUID())
+                .rating(INITIAL_RATING)
+                .deviation(INITIAL_RATING_DEVIATION)
+                .volatility(INITIAL_VOLATILITY)
+                .build();
     }
 
-    public void updateRating(@NotNull List<GlickoRating> opponents, @NotNull List<Float> scores) {
-        float[] gTable = new float[opponents.size()];
-        float[] eTable = new float[opponents.size()];
+    public void updateRating() {
+        this.rating = TRANSITION_CONSTANT * primeMew + INITIAL_RATING;
+        this.deviation = TRANSITION_CONSTANT * primePhi;
+        this.volatility = primeVolatility;
+    }
 
-        float invV = 0.0f;
+    public void calculateNewRating(@NotNull List<GlickoRating> opponents, @NotNull List<Double> scores) {
+        double mew = mew(this.rating);
+        double phi = phi(this.deviation);
 
+        double invV = 0;
         for (int i = 0; i < opponents.size(); i++) {
             GlickoRating opponent = opponents.get(i);
-            float g = opponent.getG();
-            float e = opponent.getE(this);
-
-            gTable[i] = g;
-            eTable[i] = e;
-            invV += g * g * e * (1.0f - e);
+            double expectedResult = E(mew, mew(opponent.getRating()), opponent.phi(opponent.getDeviation()));
+            double opponentG = g(phi(opponent.getDeviation()));
+            invV += opponentG * opponentG * expectedResult * (1 - expectedResult);
         }
 
-        float v = 1.0f / invV;
+        double v = 1 / invV;
 
-        float dInner = 0.0f;
+        double delta = 0f;
         for (int i = 0; i < opponents.size(); i++) {
-            dInner += gTable[i] * (scores.get(i) - eTable[i]);
+            GlickoRating opponent = opponents.get(i);
+            double score = scores.get(i);
+            double expectedResult = E(mew, mew(opponent.getRating()), phi(opponent.getDeviation()));
+            double opponentG = g(phi(opponent.getDeviation()));
+            delta += opponentG * (score - expectedResult);
         }
 
-        float d = v * dInner;
-
-        float sPrime = (float) Math.exp(Convergence(d, v, getP(), getS()) / 2.0f);
-        float pPrime = 1.0f / (float) Math.sqrt((1.0f / (getP() * getP() + sPrime * sPrime)) + invV);
-        float uPrime = getU() + pPrime * pPrime * dInner;
-
-        deviation = pPrime * SCALE_CONSTANT;
-        volatility = sPrime;
-        rating = uPrime * SCALE_CONSTANT + INITIAL_RATING;
-    }
-
-
-    private float getG() {
-        double scale = getP() / Math.PI;
-        return (float) (1.0f / Math.sqrt(1.0f + 3.0f * scale * scale));
-    }
-
-
-    private float getE(GlickoRating rating) {
-        float exponent = -1.0f * getG() * (rating.getU() - this.getU());
-        return 1.0f / (1.0f + (float) Math.exp(exponent));
-    }
-
-    private float Convergence(float d, float v, float p, float s) {
-        float dS = d * d;
-        float pS = p * p;
-        float tS = SYSTEM_CONSTANT * SYSTEM_CONSTANT;
-        float a = (float) Math.log(s * s);
-
-        float A = a;
-        float B;
-        float bTest = dS - pS - v;
-
-        if (bTest > 0) {
-            B = (float) Math.log(bTest);
+        delta *= v;
+        double a = a(this.volatility);
+        double A = a;
+        double B;
+        if (delta * delta > phi * phi + v) {
+            B = Math.log(delta * delta - phi * phi - v);
         } else {
-            B = a - SYSTEM_CONSTANT;
-            while (getF(B, dS, pS, v, a, tS) < 0.0f) {
-                B -= SYSTEM_CONSTANT;
+            int k = 1;
+            double x = a - k * TAU;
+            while (f(x, delta, phi, v, this.volatility) < 0) {
+                k += 1;
             }
+            B = a - k * TAU;
         }
 
-        float fA = getF(A, dS, pS, v, a, tS);
-        float fB = getF(B, dS, pS, v, a, tS);
-        while (Math.abs(B - A) > CONVERGENCE_CONSTANT) {
-            float C = A + (A - B) * fA / (fB - fA);
-            float fC = getF(C, dS, pS, v, a, tS);
+        double fA = f(A, delta, phi, v, this.volatility);
+        double fB = f(B, delta, phi, v, this.volatility);
 
-            if (fC * fB < 0.0f) {
+        while (Math.abs(B - A) > CONVERGENCE_TOLERANCE) {
+            double C = A + (A - B) * fA / (fB - fA);
+            double fC = f(C, delta, phi, v, this.volatility);
+            if (fC * fB <= 0) {
                 A = B;
                 fA = fB;
             } else {
-                fA /= 2.0f;
+                fA = fA / 2;
             }
-
             B = C;
             fB = fC;
         }
-        return A;
-    }
 
-    private float getP() {
-        return deviation / SCALE_CONSTANT;
-    }
+        primeVolatility = Math.exp(A / 2);
+        double phiStar = Math.sqrt(phi * phi + primeVolatility * primeVolatility);
 
-    private float getS() {
-        return volatility;
-    }
-
-    private float getU() {
-        return (rating - INITIAL_RATING) / SCALE_CONSTANT;
-    }
-
-    private float getF(float x, float dS, float pS, float v, float a, float tS) {
-        float eX = (float) Math.exp(x);
-        float num = eX * (dS - pS - v - eX);
-        float den = pS + v + eX;
-
-        return (num / (2.0f * den * den)) - ((x - a) / tS);
+        primePhi = 1 / (Math.sqrt((1 / (phiStar * phiStar)) + (1 / v)));
+        primeMew = mew + primePhi * primePhi * delta / v;
     }
 
 
+    private double mew(double rating) {
+        return (rating - 1500f) / TRANSITION_CONSTANT;
+
+    }
+
+    private double phi(double deviation) {
+        return deviation / TRANSITION_CONSTANT;
+    }
+
+    private double E(double mew, double opponentMew, double opponentPhi) {
+        return 1 / (1 + Math.exp(-g(opponentPhi) * (mew - opponentMew)));
+    }
+
+    private double g(double deviation) {
+        return 1f / (Math.sqrt(1 + 3 * deviation * deviation / (Math.PI * Math.PI)));
+    }
+
+    private double a(double volatility) {
+        return Math.log(volatility * volatility);
+    }
+
+    private double f(double x, double delta, double deviation, double v, double volatility) {
+        double a = a(volatility);
+        double firstNumerator = Math.exp(x) * (delta * delta - deviation * deviation - v - Math.exp(x));
+        double firstDenominator = 2 * (deviation * delta + v + Math.exp(x)) * (deviation * delta + v + Math.exp(x));
+        double secondNumerator = x - a;
+        double secondDenominator = TAU * TAU;
+
+        return firstNumerator / firstDenominator - secondNumerator / secondDenominator;
+    }
 }

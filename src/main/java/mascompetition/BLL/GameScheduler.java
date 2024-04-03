@@ -68,20 +68,23 @@ public class GameScheduler {
         List<GlickoRating> ratings = agents.stream().map(Agent::getGlickoRating).toList();
 
         for (int i = 0; i < 4; i++) {
-            List<Float> scores = new ArrayList<>();
+            List<Double> scores = new ArrayList<>();
             List<GlickoRating> opponents = new ArrayList<>();
             for (int j = 0; j < 4; j++) {
                 if (j == i) continue;
                 if (points.get(i) > points.get(j)) {
-                    scores.add(1.0f);
+                    scores.add(1.0);
                 } else if (points.get(i) == points.get(j)) {
-                    scores.add(0.5f);
+                    scores.add(0.5);
                 } else {
-                    scores.add(0.0f);
+                    scores.add(0.0);
                 }
                 opponents.add(ratings.get(j));
             }
-            ratings.get(i).updateRating(opponents, scores);
+            ratings.get(i).calculateNewRating(opponents, scores);
+        }
+        ratings.forEach(GlickoRating::updateRating);
+        for (int i = 0; i < 4; i++) {
             logger.info("Storing new rating of {} for agent {}", ratings.get(i).getRating(), agents.get(i).getId());
         }
     }
