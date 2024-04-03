@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 /**
@@ -45,7 +45,7 @@ public class AgentController extends BaseController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(CreateAgentResponseDTO.builder()
                 .agentID(createdAgentID)
-                .timeTillNextRound(Duration.ofMinutes(5))
+                .nextRound(ZonedDateTime.now().plusMinutes(5))
                 .build());
     }
 

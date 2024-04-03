@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 /**
@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateAgentResponseDTO {
 
-    private Duration timeTillNextRound;
+    private ZonedDateTime nextRound;
 
     private UUID agentID;
 }
