@@ -12,3 +12,4 @@ spring:
 server:
   port: 4000
 agentStoragePath: '/home/jfa93/agents/prod/'
+next-round-cron-expression: "0 0/15 * * * *"

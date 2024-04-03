@@ -6,10 +6,13 @@ import mascompetition.Repository.AgentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.scheduling.support.CronExpression;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-@Component
+@Service
 public class GameScheduler {
 
     Logger logger = LoggerFactory.getLogger(GameScheduler.class);
@@ -28,7 +31,10 @@ public class GameScheduler {
     @Autowired
     private AgentRepository agentRepository;
 
-    @Scheduled(fixedRate = 5000)
+    @Value("${next-round-cron-expression}")
+    private String nextRoundCronExpression;
+
+    @Scheduled(cron = "${next-round-cron-expression}")
     @Transactional
     public void myTask() {
         logger.info("Scheduled Event Started: Agent Evaluation");
@@ -87,6 +93,16 @@ public class GameScheduler {
         for (int i = 0; i < 4; i++) {
             logger.info("Storing new rating of {} for agent {}", ratings.get(i).getRating(), agents.get(i).getId());
         }
+    }
+
+    /**
+     * Finds the next time a round will start
+     *
+     * @return The next time a round will start
+     */
+    public ZonedDateTime getNextRound() {
+        CronExpression cronExpression = CronExpression.parse(nextRoundCronExpression);
+        return cronExpression.next(ZonedDateTime.now());
     }
 
 }
