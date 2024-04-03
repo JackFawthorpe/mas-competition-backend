@@ -1,13 +1,16 @@
 package mascompetition.BLL;
 
 import mascompetition.Entity.Agent;
+import mascompetition.Entity.GlickoRating;
 import mascompetition.Repository.AgentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,12 +28,13 @@ public class GameScheduler {
     @Autowired
     private AgentRepository agentRepository;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 5000)
+    @Transactional
     public void myTask() {
-        logger.info("Starting game evaluation");
+        logger.info("Scheduled Event Started: Agent Evaluation");
         Iterable<Agent> agentIterable = agentRepository.findAll();
         List<Agent> agents = StreamSupport.stream(agentIterable.spliterator(), false).toList();
-
+        logger.info("Loaded {} agents into the game", agents.size());
         Map<Integer, List<Agent>> matchGroups = IntStream.range(0, (agents.size() + 3) / 4)
                 .boxed()
                 .collect(Collectors.toMap(
@@ -38,15 +42,48 @@ public class GameScheduler {
                         i -> agents.subList(i * 4, Math.min((i + 1) * 4, agents.size()))
                 ));
 
-        matchGroups.forEach((key, value) -> {
-            if (value.size() != 4) {
+        for (int i = 0; i < matchGroups.size(); i++) {
+            List<Agent> agentGroup = matchGroups.get(i);
+            if (agentGroup.size() != 4) {
                 return;
             }
-            List<Integer> scores = gameService.runGame(value);
+            List<Integer> points = gameService.runGame(agentGroup);
 
-            if (scores.size() == 4) {
-                logger.info("Scores: {} {} {} {}", scores.get(0), scores.get(1), scores.get(2), scores.get(3));
+            if (points.size() != 4) {
+                return;
             }
-        });
+
+            handleRatingsUpdate(agentGroup, points);
+            agentRepository.saveAll(agentGroup);
+
+            logger.info("Scores: {} {} {} {}", points.get(0), points.get(1), points.get(2), points.get(3));
+        }
     }
+
+
+    @Transactional
+    public void handleRatingsUpdate(List<Agent> agents, List<Integer> points) {
+
+        logger.info("Starting Ratings calculations");
+        List<GlickoRating> ratings = agents.stream().map(Agent::getGlickoRating).toList();
+
+        for (int i = 0; i < 4; i++) {
+            List<Float> scores = new ArrayList<>();
+            List<GlickoRating> opponents = new ArrayList<>();
+            for (int j = 0; j < 4; j++) {
+                if (j == i) continue;
+                if (points.get(i) > points.get(j)) {
+                    scores.add(1.0f);
+                } else if (points.get(i) == points.get(j)) {
+                    scores.add(0.5f);
+                } else {
+                    scores.add(0.0f);
+                }
+                opponents.add(ratings.get(j));
+            }
+            ratings.get(i).updateRating(opponents, scores);
+            logger.info("Storing new rating of {} for agent {}", ratings.get(i).getRating(), agents.get(i).getId());
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package mascompetition.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,11 +18,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GlickoRating {
 
-    private static final float kDefaultR = 1000.0f;
-    private static final float kDefaultRD = 350.0f;
-    private static final float kScale = 173.7178f;
-    private static final float kSystemConst = 0.5f;
-    private static final float kConvergence = 0.000001f;
+    private static final float INITIAL_RATING = 1000.0f;
+    private static final float RATING_DEVIATION = 350.0f;
+    private static final float SCALE_CONSTANT = 173.7178f;
+    private static final float SYSTEM_CONSTANT = 4.49f;
+    private static final float CONVERGENCE_CONSTANT = 0.000001f;
 
     // Yucky math
     private static float kDefaultS = 0.06f;
@@ -41,10 +42,10 @@ public class GlickoRating {
     }
 
     public static GlickoRating newRating() {
-        return new GlickoRating(UUID.randomUUID(), kDefaultR, kDefaultRD, kDefaultS);
+        return new GlickoRating(UUID.randomUUID(), INITIAL_RATING, RATING_DEVIATION, kDefaultS);
     }
 
-    void updateRating(List<GlickoRating> opponents, List<Float> scores) {
+    public void updateRating(@NotNull List<GlickoRating> opponents, @NotNull List<Float> scores) {
         float[] gTable = new float[opponents.size()];
         float[] eTable = new float[opponents.size()];
 
@@ -73,9 +74,9 @@ public class GlickoRating {
         float pPrime = 1.0f / (float) Math.sqrt((1.0f / (getP() * getP() + sPrime * sPrime)) + invV);
         float uPrime = getU() + pPrime * pPrime * dInner;
 
-        deviation = pPrime * kScale;
+        deviation = pPrime * SCALE_CONSTANT;
         volatility = sPrime;
-        rating = uPrime * kScale + kDefaultR;
+        rating = uPrime * SCALE_CONSTANT + INITIAL_RATING;
     }
 
 
@@ -93,7 +94,7 @@ public class GlickoRating {
     private float Convergence(float d, float v, float p, float s) {
         float dS = d * d;
         float pS = p * p;
-        float tS = kSystemConst * kSystemConst;
+        float tS = SYSTEM_CONSTANT * SYSTEM_CONSTANT;
         float a = (float) Math.log(s * s);
 
         float A = a;
@@ -103,15 +104,15 @@ public class GlickoRating {
         if (bTest > 0) {
             B = (float) Math.log(bTest);
         } else {
-            B = a - kSystemConst;
+            B = a - SYSTEM_CONSTANT;
             while (getF(B, dS, pS, v, a, tS) < 0.0f) {
-                B -= kSystemConst;
+                B -= SYSTEM_CONSTANT;
             }
         }
 
         float fA = getF(A, dS, pS, v, a, tS);
         float fB = getF(B, dS, pS, v, a, tS);
-        while (Math.abs(B - A) > kConvergence) {
+        while (Math.abs(B - A) > CONVERGENCE_CONSTANT) {
             float C = A + (A - B) * fA / (fB - fA);
             float fC = getF(C, dS, pS, v, a, tS);
 
@@ -129,7 +130,7 @@ public class GlickoRating {
     }
 
     private float getP() {
-        return deviation / kScale;
+        return deviation / SCALE_CONSTANT;
     }
 
     private float getS() {
@@ -137,7 +138,7 @@ public class GlickoRating {
     }
 
     private float getU() {
-        return (rating - kDefaultR) / kScale;
+        return (rating - INITIAL_RATING) / SCALE_CONSTANT;
     }
 
     private float getF(float x, float dS, float pS, float v, float a, float tS) {

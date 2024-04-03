@@ -72,6 +72,7 @@ public class GameService {
             try (FileOutputStream out = new FileOutputStream(output)) {
                 out.write(cu.toString().getBytes());
             }
+            logger.info("Loaded {} into Player_{}", paths.get(i), i);
         }
     }
 
@@ -81,6 +82,7 @@ public class GameService {
      * @return The scores of each of the agents
      */
     private List<Integer> runProcess() throws IOException, InterruptedException {
+        logger.info("Loading engine");
         ProcessBuilder builder = new ProcessBuilder("java", "-jar", enginePath,
                 getPlayerPath(0),
                 getPlayerPath(1),
@@ -88,17 +90,21 @@ public class GameService {
                 getPlayerPath(3)
         );
         Process process = builder.start();
+        logger.info("Starting engine");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
         List<Integer> integers = new ArrayList<>();
-
         String line;
         for (int i = 0; i < 4; i++) {
             line = reader.readLine();
             integers.add(Integer.parseInt(line.trim()));
         }
         int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            logger.error("Engine failed with exit code {}", exitCode);
+        } else {
+            logger.info("Engine ran successfully");
+        }
         return integers;
     }
 
