@@ -12,3 +12,4 @@ spring:
 server:
   port: 4300
 agentStoragePath: './agents/'
+engineStoragePath: './mas-engine-1.0.jar'

@@ -2,6 +2,7 @@ package mascompetition.BLL;
 
 import mascompetition.DTO.CreateAgentDTO;
 import mascompetition.Entity.Agent;
+import mascompetition.Entity.GlickoRating;
 import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import mascompetition.Exception.ActionForbiddenException;
@@ -45,6 +46,16 @@ public class AgentService {
     private DirectoryService directoryService;
 
     /**
+     * Method to get the path of an agent
+     *
+     * @param agent The agent to fetch the path for
+     * @return The path the agent is stored at
+     */
+    public Path getAgentPath(Agent agent) {
+        return Path.of(agentDir + agent.getTeam().getId() + '/' + agent.getId() + '/' + agent.getName() + '_' + agent.getVersionNumber() + ".java");
+    }
+
+    /**
      * Persists an agent
      *
      * @param createAgentDTO The DTO to create the agent from
@@ -79,6 +90,7 @@ public class AgentService {
                 .team(team)
                 .name(createAgentDTO.getName())
                 .versionNumber(createAgentDTO.getVersionNumber())
+                .glickoRating(GlickoRating.newRating())
                 .build();
 
         try {

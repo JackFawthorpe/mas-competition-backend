@@ -17,6 +17,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     implementation("org.mariadb.jdbc:mariadb-java-client:3.3.3")
 
+    // JavaParser Library
+    // https://mvnrepository.com/artifact/com.github.javaparser/javaparser-symbol-solver-core
+    implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.9")
+
     // Springboot
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter
     implementation("org.springframework.boot:spring-boot-starter:3.2.3")

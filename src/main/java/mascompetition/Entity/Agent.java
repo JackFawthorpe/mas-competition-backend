@@ -16,8 +16,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class Agent {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid")
     private UUID id;
 
@@ -38,6 +38,9 @@ public class Agent {
 
     @Column
     private int versionNumber;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private GlickoRating glickoRating;
 
     public Agent() {
         // JPA Empty Args Constructor

@@ -1,6 +1,7 @@
 
 ### mas-competition-backend ###
 agents
+mas-engine-1.0.jar
 
 .gradle
 build/
