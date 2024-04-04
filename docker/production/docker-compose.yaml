@@ -11,7 +11,7 @@ services:
     ports:
       - "2000:3306"
     volumes:
-      - mas-database-data-production:/var/lib/mysql
+      - /home/jfa93/volumes/mas-prod-database:/var/lib/mysql
 
   adminer-production:
     container_name: mas-adminer-production
@@ -28,8 +28,4 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - mas-agent-volume-production:/app/agents
-
-volumes:
-  mas-agent-volume-production:
-  mas-database-data-production:
+      - /home/jfa93/volumes/mas-prod-agents:/app/agents

@@ -11,7 +11,7 @@ services:
     ports:
       - "2500:3306"
     volumes:
-      - mas-database-data-staging:/var/lib/mysql
+      - /home/jfa93/volumes/mas-staging-database:/var/lib/mysql
 
   adminer-staging:
     container_name: mas-adminer-staging
@@ -28,8 +28,4 @@ services:
     ports:
       - "4500:4500"
     volumes:
-      - mas-agent-volume-staging:/app/agents
-
-volumes:
-  mas-agent-volume-staging:
-  mas-database-data-staging:
+      - /home/jfa93/volumes/mas-staging-agents:/app/agents
