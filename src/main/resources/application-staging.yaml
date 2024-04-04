@@ -13,4 +13,4 @@ server:
   port: 4500
 agentStoragePath: '/app/agents/'
 enginePath: '/app/mas-engine.jar'
-next-round-cron-expression: "0 0/15 * * * *"
+next-round-cron-expression: "0 0/1 * * * *"
