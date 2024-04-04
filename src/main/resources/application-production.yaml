@@ -11,5 +11,6 @@ spring:
     hibernate.ddl-auto: create-drop
 server:
   port: 4000
-agentStoragePath: '/home/jfa93/agents/prod/'
+agentStoragePath: '/app/agents'
+enginePath: '/app/mas-engine.jar'
 next-round-cron-expression: "0 0/15 * * * *"

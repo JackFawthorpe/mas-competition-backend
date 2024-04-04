@@ -1,5 +1,6 @@
 package mascompetition.BLL;
 
+import jakarta.validation.constraints.NotNull;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.GlickoRating;
 import mascompetition.Repository.AgentRepository;
@@ -14,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
+/**
+ * Service responsible for handling the scheduling and orchestrating the execution of games from the {@link GameService}
+ */
 @Service
 public class GameScheduler {
 
@@ -29,61 +30,94 @@ public class GameScheduler {
     private GameService gameService;
 
     @Autowired
+    private AgentService agentService;
+
+    @Autowired
     private AgentRepository agentRepository;
 
     @Value("${next-round-cron-expression}")
     private String nextRoundCronExpression;
 
+    /**
+     * The head of the game scheduling system
+     * <p>
+     * It will first fetch all the agents and organise them into groups
+     * It will then run each game and on the assumption the game ran successfully it will update the rankings
+     * of each of the agents
+     */
     @Scheduled(cron = "${next-round-cron-expression}")
     @Transactional
-    public void myTask() {
+    public void runGames() {
         logger.info("Scheduled Event Started: Agent Evaluation");
-        Iterable<Agent> agentIterable = agentRepository.findAll();
-        List<Agent> agents = StreamSupport.stream(agentIterable.spliterator(), false).toList();
-        logger.info("Loaded {} agents into the game", agents.size());
-        Map<Integer, List<Agent>> matchGroups = IntStream.range(0, (agents.size() + 3) / 4)
-                .boxed()
-                .collect(Collectors.toMap(
-                        i -> i,
-                        i -> agents.subList(i * 4, Math.min((i + 1) * 4, agents.size()))
-                ));
 
-        for (int i = 0; i < matchGroups.size(); i++) {
-            List<Agent> agentGroup = matchGroups.get(i);
-            if (agentGroup.size() != 4) {
-                return;
-            }
-            List<Integer> points = gameService.runGame(agentGroup);
+        for (List<Agent> agentGroup : getGameGroups()) {
+            List<Integer> agentPoints = gameService.runGame(agentGroup);
 
-            if (points.size() != 4) {
-                return;
+            // If the game didn't run successfully
+            if (agentPoints.size() != 4) {
+                logger.error("Game failed to run with agents {} {} {} {}",
+                        agentGroup.get(0).getId(),
+                        agentGroup.get(1).getId(),
+                        agentGroup.get(2).getId(),
+                        agentGroup.get(3).getId());
+                continue;
             }
 
-            handleRatingsUpdate(agentGroup, points);
+            handleRatingsUpdate(agentGroup, agentPoints);
             agentRepository.saveAll(agentGroup);
 
-            logger.info("Scores: {} {} {} {}", points.get(0), points.get(1), points.get(2), points.get(3));
+            logger.info("Scores for game: {} {} {} {}",
+                    agentPoints.get(0),
+                    agentPoints.get(1),
+                    agentPoints.get(2),
+                    agentPoints.get(3));
         }
     }
 
+    /**
+     * Generates the groupings of agents to be played
+     *
+     * @return The list of agents grouped in matches
+     */
+    public List<List<Agent>> getGameGroups() {
+        List<Agent> agents = agentService.getAllAgents();
+        Collections.shuffle(agents);
+        List<List<Agent>> matches = new ArrayList<>();
+        for (int i = 0; i + 3 <= agents.size(); i += 4) {
+            matches.add(agents.subList(i, i + 4));
+        }
+        return matches;
+    }
 
+    /**
+     * Logic for updating the ratings of agents after they have played a match
+     * Rating updates are as follows:
+     * - A Single game of 4 players is treated as 3 one on ones
+     * - Your rating is calculated based on the expectation of you getting more points than each of your opponents
+     * - You are then evaluated based on those games and your rating is updated
+     *
+     * @param agents The list of agents within a game
+     * @param points The amount of points they scored in the game
+     */
     @Transactional
-    public void handleRatingsUpdate(List<Agent> agents, List<Integer> points) {
-
+    public void handleRatingsUpdate(@NotNull List<Agent> agents, @NotNull List<Integer> points) {
         logger.info("Starting Ratings calculations");
+
         List<GlickoRating> ratings = agents.stream().map(Agent::getGlickoRating).toList();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < ratings.size(); i++) {
+
             List<Double> scores = new ArrayList<>();
             List<GlickoRating> opponents = new ArrayList<>();
-            for (int j = 0; j < 4; j++) {
+
+            for (int j = 0; j < ratings.size(); j++) {
                 if (j == i) continue;
                 if (points.get(i) > points.get(j)) {
                     scores.add(1.0);
-                } else if (points.get(i) == points.get(j)) {
-                    scores.add(0.5);
-                } else {
+                } else if (points.get(i) < points.get(j)) {
                     scores.add(0.0);
+                } else {
+                    scores.add(0.5);
                 }
                 opponents.add(ratings.get(j));
             }

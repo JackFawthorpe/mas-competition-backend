@@ -2,7 +2,11 @@ package mascompetition.BLL;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.expr.Name;
 import mascompetition.Entity.Agent;
+import mascompetition.Exception.LoadAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,17 +15,25 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Service for handling the execution of a single game
+ */
 @Service
 public class GameService {
 
     Logger logger = LoggerFactory.getLogger(GameService.class);
+
     @Autowired
     private AgentService agentService;
+
     @Value("${agentStoragePath}")
     private String agentDir;
+
     @Value("${engineStoragePath}")
     private String enginePath;
 
@@ -33,44 +45,65 @@ public class GameService {
      * - There must be exactly 4
      *
      * @param agents The list of agents to play
+     * @return If successful, the amount of points each player scored during the game
+     * Else it returns an empty list
      */
     public List<Integer> runGame(List<Agent> agents) {
         try {
-            logger.info("Running game with the following agents: {} {} {} {}", agents.get(0).getId(), agents.get(1).getId(), agents.get(2).getId(), agents.get(3).getId());
+            logger.info("Running game with the following agents: {} {} {} {}",
+                    agents.get(0).getId(),
+                    agents.get(1).getId(),
+                    agents.get(2).getId(),
+                    agents.get(3).getId());
             List<Path> agentPaths = agents.stream().map(agent -> agentService.getAgentPath(agent)).toList();
 
             loadPlayers(agentPaths);
             return runProcess();
+
         } catch (Exception e) {
-            logger.error("Game failed to run with agents: {} {} {} {} with exception {}", agents.get(0).getId(), agents.get(1).getId(), agents.get(2).getId(), agents.get(3).getId(), e.getMessage());
+            logger.error("Game failed to run with agents: {} {} {} {} with exception {}",
+                    agents.get(0).getId(),
+                    agents.get(1).getId(),
+                    agents.get(2).getId(),
+                    agents.get(3).getId(),
+                    e.getMessage());
             e.printStackTrace();
             return List.of();
         }
     }
 
-    private void loadPlayers(List<Path> paths) throws Exception {
+    /**
+     * Loads validated agents into the game's player directory
+     *
+     * @param paths The list of agents to load
+     * @throws LoadAgentException Thrown when there is an issue loading the agent into the system
+     */
+    private void loadPlayers(List<Path> paths) throws LoadAgentException {
         for (int i = 0; i < paths.size(); i++) {
-
             Path path = paths.get(i);
-
+            CompilationUnit compilationUnit;
             File file = new File(path.toUri());
-            FileInputStream in = new FileInputStream(file);
-            CompilationUnit cu = StaticJavaParser.parse(in);
-            in.close();
 
+            try (FileInputStream in = new FileInputStream(file)) {
+                compilationUnit = StaticJavaParser.parse(in);
+            } catch (IOException e) {
+                throw new LoadAgentException(String.format("Failed to load agent from %s with Exception %s", path, e.getMessage()));
+            }
+
+            compilationUnit.setPackageDeclaration(new PackageDeclaration(new Name("api.agent")));
             String className = extractFileName(path.toString());
-
-            // TODO: Verify these .get's are safe
-
-            // Change the name of the class
-            cu.getPackageDeclaration().get().setName("api.agent");
-            cu.getClassByName(className).get().setName(String.format("Player_%d", i));
-
-            File output = new File(getPlayerPath(i));
+            Optional<ClassOrInterfaceDeclaration> oClass = compilationUnit.getClassByName(className);
+            if (oClass.isEmpty()) {
+                throw new LoadAgentException("No class found within the file");
+            }
+            oClass.get().setName(String.format("Player_%d", i));
+            File outputDir = new File(getPlayerPath(i));
 
             // Save the modified file
-            try (FileOutputStream out = new FileOutputStream(output)) {
-                out.write(cu.toString().getBytes());
+            try (FileOutputStream out = new FileOutputStream(outputDir)) {
+                out.write(compilationUnit.toString().getBytes());
+            } catch (IOException e) {
+                throw new LoadAgentException(String.format("Failed to save agent to %s with Exception %s", outputDir, e.getMessage()));
             }
             logger.info("Loaded {} into Player_{}", paths.get(i), i);
         }
@@ -108,33 +141,31 @@ public class GameService {
         return integers;
     }
 
-    private String extractFileName(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
-            return "";
-        }
 
-        // Find the last index of file separator
-        int lastIndex = filePath.lastIndexOf(File.separator);
-
-        // If file separator not found, return the entire string
-        if (lastIndex == -1) {
-            return filePath;
-        }
-
-        // Extract the file name
-        String fileName = filePath.substring(lastIndex + 1);
-
-        // Find the last index of the dot (file extension)
-        int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex == -1) {
-            // If file extension not found, return the entire file name
-            return fileName;
+    /**
+     * Gets the filename / classname from the agent from the path that is provided
+     *
+     * @param filePath The path of the agent
+     * @return The expected name of the agent
+     */
+    private static String extractFileName(String filePath) {
+        Path path = Paths.get(filePath);
+        Path fileNamePath = path.getFileName();
+        String fileName = fileNamePath.toString();
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex != -1) {
+            return fileName.substring(0, lastDotIndex);
         } else {
-            // Remove the extension and return
-            return fileName.substring(0, dotIndex);
+            return fileName;
         }
     }
 
+    /**
+     * Gets the path to store players in
+     *
+     * @param player The player number
+     * @return String representation of the directory to load the player into
+     */
     private String getPlayerPath(int player) {
         return String.format("%splayers/Player_%d.java", agentDir, player);
     }

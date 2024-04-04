@@ -31,7 +31,7 @@ public class TeamController {
      * Endpoint for getting a singular team
      *
      * @param teamId The ID of the team
-     * @return the TeamDTO of the team (201)
+     * @return the TeamDTO of the team (200)
      * @throws EntityNotFoundException Thrown if the team is not found
      */
     @GetMapping("/teams/{team_id}")
