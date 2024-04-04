@@ -28,7 +28,7 @@ services:
     ports:
       - "4500:4500"
     volumes:
-      - mas-agent-volume:/app/agents
+      - mas-agent-volume-staging:/app/agents
 
 volumes:
   mas-agent-volume-staging:
