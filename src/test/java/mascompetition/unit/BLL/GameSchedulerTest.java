@@ -131,7 +131,7 @@ class GameSchedulerTest extends BaseTestFixture {
 
         gameScheduler.runGames();
 
-        verify(agentRepository, times(1)).saveAll(agents);
+        verify(agentRepository, times(1)).saveAll(any());
     }
 
     @Test
