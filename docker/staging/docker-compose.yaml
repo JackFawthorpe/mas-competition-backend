@@ -32,3 +32,4 @@ services:
 
 volumes:
   mas-agent-volume-staging:
+  mas-database-data-staging:

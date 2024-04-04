@@ -32,3 +32,4 @@ services:
 
 volumes:
   mas-agent-volume-production:
+  mas-database-data-production:
