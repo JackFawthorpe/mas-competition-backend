@@ -81,7 +81,7 @@ public class GameScheduler {
      * @return The list of agents grouped in matches
      */
     public List<List<Agent>> getGameGroups() {
-        List<Agent> agents = agentService.getAllAgents();
+        List<Agent> agents = new ArrayList<>(agentService.getAllAgents());
         Collections.shuffle(agents);
         List<List<Agent>> matches = new ArrayList<>();
         for (int i = 0; i + 3 < agents.size(); i += 4) {
