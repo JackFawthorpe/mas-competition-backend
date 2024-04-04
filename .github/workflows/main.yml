@@ -28,6 +28,9 @@ jobs:
       - name: Permissions
         run: chmod u+x ./gradlew
 
+      - name: Fetch engine
+        run: cp /home/jfa93/mas-engine/mas-engine-1.0.jar .
+
       - name: Start Test DB
         run: echo ${{ secrets.USERPWD }} | sudo -S  docker compose -f ./docker/dev/docker-compose.yaml up -d
 
