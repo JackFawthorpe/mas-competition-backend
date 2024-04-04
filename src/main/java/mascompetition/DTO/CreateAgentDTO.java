@@ -21,7 +21,7 @@ public class CreateAgentDTO {
     @NotBlank(message = "name is a required field")
     @NotEmpty(message = "name is a required field")
     @NotNull(message = "name is a required field")
-    @Size(min = 6, max = 64, message = "name must be between 6 and 64 characters")
+    @Size(min = 6, max = 32, message = "name must be between 6 and 64 characters")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "name can only contain letters")
     private String name;
 

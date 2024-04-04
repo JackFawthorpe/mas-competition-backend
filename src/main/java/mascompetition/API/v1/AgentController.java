@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import mascompetition.API.BaseController;
 import mascompetition.BLL.AgentService;
 import mascompetition.BLL.GameScheduler;
+import mascompetition.BLL.LeaderboardService;
 import mascompetition.BLL.UserService;
+import mascompetition.DTO.AgentListDTO;
 import mascompetition.DTO.CreateAgentDTO;
 import mascompetition.DTO.CreateAgentResponseDTO;
 import mascompetition.Exception.ActionForbiddenException;
@@ -17,13 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import java.util.UUID;
-import java.time.ZonedDateTime;
 
 /**
  * Controller responsible for interaction with agents
@@ -42,6 +42,9 @@ public class AgentController extends BaseController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LeaderboardService leaderboardService;
 
     /**
      * Endpoint for creating a new agent
@@ -72,4 +75,16 @@ public class AgentController extends BaseController {
                 .build());
     }
 
+
+    /**
+     * Endpoint for retrieving the agents in a leaderboard format of rating descending
+     *
+     * @return The
+     */
+    @GetMapping(value = "/agents")
+    public ResponseEntity<List<AgentListDTO>> getAgents() {
+        logger.info("GET api/vi/agents with user {}", userService.getCurrentUser().getId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(leaderboardService.getOrderedAgentLeaderboard());
+    }
 }
