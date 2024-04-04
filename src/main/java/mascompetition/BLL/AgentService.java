@@ -2,6 +2,7 @@ package mascompetition.BLL;
 
 import mascompetition.DTO.CreateAgentDTO;
 import mascompetition.Entity.Agent;
+import mascompetition.Entity.GlickoRating;
 import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import mascompetition.Exception.ActionForbiddenException;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 /**
  * Service responsible for interaction with agents
@@ -43,6 +45,16 @@ public class AgentService {
 
     @Autowired
     private DirectoryService directoryService;
+
+    /**
+     * Method to get the path of an agent
+     *
+     * @param agent The agent to fetch the path for
+     * @return The path the agent is stored at
+     */
+    public Path getAgentPath(Agent agent) {
+        return Path.of(agentDir + agent.getTeam().getId() + '/' + agent.getId() + '/' + agent.getName() + '_' + agent.getVersionNumber() + ".java");
+    }
 
     /**
      * Persists an agent
@@ -79,6 +91,7 @@ public class AgentService {
                 .team(team)
                 .name(createAgentDTO.getName())
                 .versionNumber(createAgentDTO.getVersionNumber())
+                .glickoRating(GlickoRating.newRating())
                 .build();
 
         try {
@@ -94,5 +107,17 @@ public class AgentService {
         }
 
         return agentID;
+    }
+
+    /**
+     * Fetches all the agents in the game and loads them all into memory
+     *
+     * @return The list of agents
+     */
+    public List<Agent> getAllAgents() {
+        Iterable<Agent> agentIterable = agentRepository.findAll();
+        List<Agent> agents = StreamSupport.stream(agentIterable.spliterator(), false).toList();
+        logger.info("Loaded {} agents into memory", agents.size());
+        return agents;
     }
 }

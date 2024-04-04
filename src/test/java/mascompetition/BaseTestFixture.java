@@ -1,6 +1,8 @@
 package mascompetition;
 
 
+import mascompetition.Entity.Agent;
+import mascompetition.Entity.GlickoRating;
 import mascompetition.Entity.Team;
 import mascompetition.Entity.User;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +11,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests extend this fixture which provides default models
@@ -44,6 +49,16 @@ public class BaseTestFixture {
                 .id(UUID.randomUUID())
                 .name("Default team name")
                 .users(new ArrayList<>());
+    }
+
+    public Agent.AgentBuilder getAgent() {
+        return Agent.builder()
+                .id(UUID.randomUUID())
+                .name("DefaultAgent")
+                .versionNumber(1)
+                .team(mock(Team.class))
+                .glickoRating(GlickoRating.newRating())
+                .authors(List.of(mock(User.class)));
     }
 
 }
