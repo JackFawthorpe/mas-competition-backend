@@ -34,7 +34,7 @@ public class GameService {
     @Value("${agentStoragePath}")
     private String agentDir;
 
-    @Value("${engineStoragePath}")
+    @Value("${enginePath}")
     private String enginePath;
 
     /**
