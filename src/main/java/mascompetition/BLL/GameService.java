@@ -132,9 +132,10 @@ public class GameService {
         int exitCode = process.waitFor();
         if (exitCode != 0) {
             logger.error("Engine failed with exit code {}", exitCode);
-        } else {
-            logger.info("Engine ran successfully");
+            return List.of();
         }
+
+        logger.info("Engine ran successfully");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         List<Integer> integers = new ArrayList<>();
