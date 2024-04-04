@@ -45,5 +45,4 @@ class GlickoRatingTest {
         Assertions.assertTrue(Math.abs(player.getRating() - 1464.06) < 0.01);
         Assertions.assertTrue(Math.abs(player.getDeviation() - 151.52) < 0.01);
     }
-
 }

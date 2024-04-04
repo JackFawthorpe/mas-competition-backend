@@ -9,6 +9,8 @@ import lombok.Data;
 import java.util.List;
 import java.util.UUID;
 
+import static mascompetition.Utility.GlickoCalculator.*;
+
 /**
  * JPA entity for the rating of an agent
  */
@@ -17,14 +19,6 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class GlickoRating {
-
-    private static double INITIAL_RATING = 1500f;
-    private static double INITIAL_RATING_DEVIATION = 350f;
-    private static double INITIAL_VOLATILITY = 0.06f;
-    private static double TAU = 0.5f;
-
-    private static double TRANSITION_CONSTANT = 173.7178f;
-    private static double CONVERGENCE_TOLERANCE = 0.000001f;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -78,34 +72,27 @@ public class GlickoRating {
         double phi = phi(this.deviation);
 
         double invV = 0;
-        for (int i = 0; i < opponents.size(); i++) {
-            GlickoRating opponent = opponents.get(i);
-            double expectedResult = E(mew, mew(opponent.getRating()), opponent.phi(opponent.getDeviation()));
-            double opponentG = g(phi(opponent.getDeviation()));
-            invV += opponentG * opponentG * expectedResult * (1 - expectedResult);
+        for (GlickoRating opponent : opponents) {
+            invV += vContribution(this.rating, opponent.rating, opponent.deviation);
         }
 
         double v = 1 / invV;
 
         double delta = 0f;
         for (int i = 0; i < opponents.size(); i++) {
-            GlickoRating opponent = opponents.get(i);
-            double score = scores.get(i);
-            double expectedResult = E(mew, mew(opponent.getRating()), phi(opponent.getDeviation()));
-            double opponentG = g(phi(opponent.getDeviation()));
-            delta += opponentG * (score - expectedResult);
+            delta += deltaContribution(this.rating, opponents.get(i).rating, opponents.get(i).deviation, scores.get(i));
         }
 
         delta *= v;
         double a = a(this.volatility);
         double A = a;
         double B;
+
         if (delta * delta > phi * phi + v) {
             B = Math.log(delta * delta - phi * phi - v);
         } else {
             int k = 1;
-            double x = a - k * TAU;
-            while (f(x, delta, phi, v, this.volatility) < 0) {
+            while (f(a - k * TAU, delta, phi, v, this.volatility) < 0) {
                 k += 1;
             }
             B = a - k * TAU;
@@ -115,7 +102,7 @@ public class GlickoRating {
         double fB = f(B, delta, phi, v, this.volatility);
 
         while (Math.abs(B - A) > CONVERGENCE_TOLERANCE) {
-            double C = A + (A - B) * fA / (fB - fA);
+            double C = C(A, B, fA, fB);
             double fC = f(C, delta, phi, v, this.volatility);
             if (fC * fB <= 0) {
                 A = B;
@@ -134,35 +121,4 @@ public class GlickoRating {
         primeMew = mew + primePhi * primePhi * delta / v;
     }
 
-
-    private double mew(double rating) {
-        return (rating - 1500f) / TRANSITION_CONSTANT;
-
-    }
-
-    private double phi(double deviation) {
-        return deviation / TRANSITION_CONSTANT;
-    }
-
-    private double E(double mew, double opponentMew, double opponentPhi) {
-        return 1 / (1 + Math.exp(-g(opponentPhi) * (mew - opponentMew)));
-    }
-
-    private double g(double deviation) {
-        return 1f / (Math.sqrt(1 + 3 * deviation * deviation / (Math.PI * Math.PI)));
-    }
-
-    private double a(double volatility) {
-        return Math.log(volatility * volatility);
-    }
-
-    private double f(double x, double delta, double deviation, double v, double volatility) {
-        double a = a(volatility);
-        double firstNumerator = Math.exp(x) * (delta * delta - deviation * deviation - v - Math.exp(x));
-        double firstDenominator = 2 * (deviation * delta + v + Math.exp(x)) * (deviation * delta + v + Math.exp(x));
-        double secondNumerator = x - a;
-        double secondDenominator = TAU * TAU;
-
-        return firstNumerator / firstDenominator - secondNumerator / secondDenominator;
-    }
 }
