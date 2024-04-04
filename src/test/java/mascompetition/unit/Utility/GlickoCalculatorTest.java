@@ -79,4 +79,12 @@ public class GlickoCalculatorTest {
         assertDouble(4.0183, C(4, 2, 0.1, 11));
         assertDouble(0.3333, C(83, 21, 2, 0.5));
     }
+
+    @Test
+    void phiPrime_tests() {
+        assertDouble(1.4907, primePhi(2, 5));
+        assertDouble(2.0579, primePhi(3, 8));
+        assertDouble(3.1047, primePhi(7, 12));
+        assertDouble(0.9863, primePhi(6, 1));
+    }
 }

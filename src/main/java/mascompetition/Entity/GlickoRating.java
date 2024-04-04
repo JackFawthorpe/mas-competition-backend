@@ -73,17 +73,18 @@ public class GlickoRating {
 
         double invV = 0;
         for (GlickoRating opponent : opponents) {
-            invV += vContribution(this.rating, opponent.rating, opponent.deviation);
+            invV += vContribution(this.rating, opponent.getRating(), opponent.getDeviation());
         }
 
         double v = 1 / invV;
 
         double delta = 0f;
         for (int i = 0; i < opponents.size(); i++) {
-            delta += deltaContribution(this.rating, opponents.get(i).rating, opponents.get(i).deviation, scores.get(i));
+            delta += deltaContribution(this.rating, opponents.get(i).getRating(), opponents.get(i).getDeviation(), scores.get(i));
         }
-
         delta *= v;
+
+
         double a = a(this.volatility);
         double A = a;
         double B;
@@ -117,7 +118,7 @@ public class GlickoRating {
         primeVolatility = Math.exp(A / 2);
         double phiStar = Math.sqrt(phi * phi + primeVolatility * primeVolatility);
 
-        primePhi = 1 / (Math.sqrt((1 / (phiStar * phiStar)) + (1 / v)));
+        primePhi = primePhi(phiStar, v);
         primeMew = mew + primePhi * primePhi * delta / v;
     }
 

@@ -40,7 +40,7 @@ public class GlickoCalculator {
     }
 
     public static double mew(double rating) {
-        return (rating - 1500f) / TRANSITION_CONSTANT;
+        return (rating - INITIAL_RATING) / TRANSITION_CONSTANT;
     }
 
     public static double phi(double deviation) {
@@ -57,5 +57,9 @@ public class GlickoCalculator {
 
     public static double C(double A, double B, double fA, double fB) {
         return A + (A - B) * fA / (fB - fA);
+    }
+
+    public static double primePhi(double phiStar, double v) {
+        return 1 / Math.sqrt(1 / (phiStar * phiStar) + 1 / v);
     }
 }
