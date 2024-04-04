@@ -8,9 +8,10 @@ services:
       MARIADB_DATABASE: mascompetition
       MARIADB_USER: user
       MARIADB_PASSWORD: password
-      port:
     ports:
       - "2500:3306"
+    volumes:
+      - mas-database-data-staging:/var/lib/mysql
 
   adminer-staging:
     container_name: mas-adminer-staging
@@ -19,10 +20,15 @@ services:
     ports:
       - "8500:8080"
 
-  mas-competition-backend-staging:
+  mas-backend-staging:
     image: mas-competition-backend-staging
     restart: always
     depends_on:
       - mas-database-staging
     ports:
       - "4500:4500"
+    volumes:
+      - mas-agent-volume:/app/agents
+
+volumes:
+  mas-agent-volume-staging:

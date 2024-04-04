@@ -10,6 +10,8 @@ services:
       MARIADB_PASSWORD: password
     ports:
       - "2000:3306"
+    volumes:
+      - mas-database-data-production:/var/lib/mysql
 
   adminer-production:
     container_name: mas-adminer-production
@@ -18,10 +20,15 @@ services:
     ports:
       - "8000:8080"
 
-  mas-competition-backend-production:
+  mas-backend-production:
     image: mas-competition-backend-production
     restart: always
     depends_on:
       - mas-database-production
     ports:
       - "4000:4000"
+    volumes:
+      - mas-agent-volume:/app/agents
+
+volumes:
+  mas-agent-volume-production:
