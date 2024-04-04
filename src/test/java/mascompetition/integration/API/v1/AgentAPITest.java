@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AgentAPITest extends IntegrationTestFixture {
 
     @ParameterizedTest
-    @ValueSource(strings = {"sixlet", "CAPTIALS", "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"})
+    @ValueSource(strings = {"sixlet", "CAPTIALS", "ssssssssssssssssssssssssssssssss"})
     void createAgent_bluesky_201(String validName) throws Exception {
 
         currentUser.setTeam(getTeam().build());
@@ -156,7 +156,7 @@ class AgentAPITest extends IntegrationTestFixture {
 
 
     @ParameterizedTest
-    @ValueSource(strings = {"aaaaa", "aaaaaa1", "aaaa!@", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"})
+    @ValueSource(strings = {"aaaaa", "aaaaaa1", "aaaa!@", "sssssssssssssssssssssssssssssssss"})
     void createAgent_InvalidName_400(String invalidName) throws Exception {
 
         currentUser.setTeam(getTeam().build());
