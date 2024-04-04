@@ -12,5 +12,5 @@ spring:
 server:
   port: 4300
 agentStoragePath: './agents/'
-engineStoragePath: './mas-engine-1.0.jar'
+enginePath: './mas-engine-1.0.jar'
 next-round-cron-expression: '0/20 * * * * *'
