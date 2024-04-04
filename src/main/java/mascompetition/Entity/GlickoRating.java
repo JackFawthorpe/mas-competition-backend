@@ -65,6 +65,14 @@ public class GlickoRating {
         this.volatility = primeVolatility;
     }
 
+    /**
+     * Imma keep it real with you chief I don't know how the math behind this works all that well,
+     * This is a word for word representation of the formula supplied here <a href="http://www.glicko.net/glicko/glicko2.pdf"/>
+     *
+     * @param opponents The list of opponents that the agent faced within the game (Should have 3 values)
+     * @param scores    A list of 1.0 0.5 0.0 values that represent having more points, the same amount of points or less points than the
+     *                  opponent of the same index
+     */
     public void calculateNewRating(@NotNull List<GlickoRating> opponents, @NotNull List<Double> scores) {
         double mew = mew(this.rating);
         double phi = phi(this.deviation);

@@ -63,7 +63,8 @@ public class GameScheduler {
                 continue;
             }
 
-            handleRatingsUpdate(agentGroup, agentPoints);
+            List<GlickoRating> ratings = agentGroup.stream().map(Agent::getGlickoRating).toList();
+            handleRatingsUpdate(ratings, agentPoints);
             agentRepository.saveAll(agentGroup);
 
             logger.info("Scores for game: {} {} {} {}",
@@ -83,7 +84,7 @@ public class GameScheduler {
         List<Agent> agents = agentService.getAllAgents();
         Collections.shuffle(agents);
         List<List<Agent>> matches = new ArrayList<>();
-        for (int i = 0; i + 3 <= agents.size(); i += 4) {
+        for (int i = 0; i + 3 < agents.size(); i += 4) {
             matches.add(agents.subList(i, i + 4));
         }
         return matches;
@@ -96,15 +97,12 @@ public class GameScheduler {
      * - Your rating is calculated based on the expectation of you getting more points than each of your opponents
      * - You are then evaluated based on those games and your rating is updated
      *
-     * @param agents The list of agents within a game
-     * @param points The amount of points they scored in the game
+     * @param ratings The ratings of each agents within teh game
+     * @param points  The amount of points they scored in the game
      */
     @Transactional
-    public void handleRatingsUpdate(@NotNull List<Agent> agents, @NotNull List<Integer> points) {
+    public void handleRatingsUpdate(@NotNull List<GlickoRating> ratings, @NotNull List<Integer> points) {
         logger.info("Starting Ratings calculations");
-
-        List<GlickoRating> ratings = agents.stream().map(Agent::getGlickoRating).toList();
-
         for (int i = 0; i < ratings.size(); i++) {
 
             List<Double> scores = new ArrayList<>();
@@ -124,9 +122,6 @@ public class GameScheduler {
             ratings.get(i).calculateNewRating(opponents, scores);
         }
         ratings.forEach(GlickoRating::updateRating);
-        for (int i = 0; i < 4; i++) {
-            logger.info("Storing new rating of {} for agent {}", ratings.get(i).getRating(), agents.get(i).getId());
-        }
     }
 
     /**

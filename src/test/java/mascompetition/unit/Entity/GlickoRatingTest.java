@@ -39,12 +39,11 @@ class GlickoRatingTest {
 
         List<Double> scores = List.of(1.0, 0.0, 0.0);
         player.calculateNewRating(opponents, scores);
-        Assertions.assertEquals(1500.0, player.getRating()); // It shouldnt change until an update is triggered
-        Assertions.assertEquals(200.0, player.getDeviation()); // It shouldnt change until an update is triggered
+        Assertions.assertEquals(1500.0, player.getRating()); // It shouldn't change until an update is triggered
+        Assertions.assertEquals(200.0, player.getDeviation()); // It shouldn't change until an update is triggered
         player.updateRating();
         Assertions.assertTrue(Math.abs(player.getRating() - 1464.06) < 0.01);
         Assertions.assertTrue(Math.abs(player.getDeviation() - 151.52) < 0.01);
-        System.out.println(player);
     }
 
 }
