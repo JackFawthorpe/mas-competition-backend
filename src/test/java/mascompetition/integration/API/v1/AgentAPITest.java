@@ -1,6 +1,10 @@
 package mascompetition.integration.API.v1;
 
+import mascompetition.DTO.AgentListDTO;
 import mascompetition.DTO.CreateAgentDTO;
+import mascompetition.Entity.Agent;
+import mascompetition.Entity.GlickoRating;
+import mascompetition.Entity.Team;
 import mascompetition.integration.IntegrationTestFixture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,13 +18,13 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AgentControllerTest extends IntegrationTestFixture {
+class AgentAPITest extends IntegrationTestFixture {
 
     @ParameterizedTest
     @ValueSource(strings = {"sixlet", "CAPTIALS", "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"})
@@ -172,6 +176,27 @@ class AgentControllerTest extends IntegrationTestFixture {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("name")));
+    }
+
+
+    @Test
+    void getAgents_Bluesky_200() throws Exception {
+        Team team = getTeam().build();
+        GlickoRating glickoRating = GlickoRating.newRating();
+        Agent agent = getAgent().team(team).glickoRating(glickoRating).build();
+
+        AgentListDTO expected = AgentListDTO.builder()
+                .agentName(agent.getName())
+                .teamName(team.getName())
+                .agentId(agent.getId())
+                .teamId(team.getId())
+                .rating(1500)
+                .build();
+        when(agentRepository.findAllByOrderByRatingDesc()).thenReturn(List.of(agent));
+
+        mockMvc.perform(get("/api/v1/agents"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(List.of(expected))));
     }
 
 
