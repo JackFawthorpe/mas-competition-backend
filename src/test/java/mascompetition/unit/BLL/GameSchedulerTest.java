@@ -135,6 +135,22 @@ class GameSchedulerTest extends BaseTestFixture {
     }
 
     @Test
+    void runGames_EngineFailure_NoAgentSaving() {
+        List<Agent> agents = new ArrayList();
+
+        for (int i = 0; i < 4; i++) {
+            agents.add(getAgent().build());
+        }
+
+        when(gameService.runGame(any())).thenReturn(List.of());
+        when(agentService.getAllAgents()).thenReturn(agents);
+
+        gameScheduler.runGames();
+
+        verify(agentRepository, times(0)).saveAll(agents);
+    }
+
+    @Test
     void runGames_IntegrationTest_OnlySavesPlayedAgents() {
         List<Agent> agents = new ArrayList();
 
