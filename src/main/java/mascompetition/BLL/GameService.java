@@ -129,18 +129,19 @@ public class GameService {
         Process process = builder.start();
         logger.info("Starting engine");
 
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            logger.error("Engine failed with exit code {}", exitCode);
+        } else {
+            logger.info("Engine ran successfully");
+        }
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         List<Integer> integers = new ArrayList<>();
         String line;
         for (int i = 0; i < 4; i++) {
             line = reader.readLine();
             integers.add(Integer.parseInt(line.trim()));
-        }
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            logger.error("Engine failed with exit code {}", exitCode);
-        } else {
-            logger.info("Engine ran successfully");
         }
         return integers;
     }
