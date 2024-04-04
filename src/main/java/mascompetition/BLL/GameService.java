@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -101,6 +102,7 @@ public class GameService {
 
             // Save the modified file
             try (FileOutputStream out = new FileOutputStream(outputDir)) {
+                Files.createDirectories(Path.of(String.format("%splayers", agentDir)));
                 out.write(compilationUnit.toString().getBytes());
             } catch (IOException e) {
                 throw new LoadAgentException(String.format("Failed to save agent to %s with Exception %s", outputDir, e.getMessage()));
