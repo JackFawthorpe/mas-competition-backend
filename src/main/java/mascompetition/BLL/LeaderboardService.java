@@ -27,7 +27,7 @@ public class LeaderboardService {
         return agents.stream().map(agent ->
                 AgentListDTO.builder()
                         .agentId(agent.getId())
-                        .agentName(agent.getName())
+                        .agentName(String.format("%s v%s", agent.getName(), agent.getVersionNumber()))
                         .teamId(agent.getTeam().getId())
                         .teamName(agent.getTeam().getName())
                         .rating((int) Math.floor(agent.getGlickoRating().getRating()))
