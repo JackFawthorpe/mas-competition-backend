@@ -186,7 +186,7 @@ class AgentAPITest extends IntegrationTestFixture {
         Agent agent = getAgent().team(team).glickoRating(glickoRating).build();
 
         AgentListDTO expected = AgentListDTO.builder()
-                .agentName(agent.getName())
+                .agentName(String.format("%s v%s", agent.getName(), agent.getVersionNumber()))
                 .teamName(team.getName())
                 .agentId(agent.getId())
                 .teamId(team.getId())
