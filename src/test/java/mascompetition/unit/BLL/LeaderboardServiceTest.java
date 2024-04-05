@@ -36,7 +36,7 @@ class LeaderboardServiceTest extends BaseTestFixture {
         List<AgentListDTO> result = leaderboardService.getOrderedAgentLeaderboard();
 
         AgentListDTO expected = AgentListDTO.builder()
-                .agentName(agent.getName())
+                .agentName(String.format("%s v%s", agent.getName(), agent.getVersionNumber()))
                 .teamName(team.getName())
                 .agentId(agent.getId())
                 .teamId(team.getId())
