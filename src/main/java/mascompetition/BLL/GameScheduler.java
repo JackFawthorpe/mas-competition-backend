@@ -2,6 +2,7 @@ package mascompetition.BLL;
 
 import jakarta.validation.constraints.NotNull;
 import mascompetition.Entity.Agent;
+import mascompetition.Entity.AgentStatus;
 import mascompetition.Entity.GlickoRating;
 import mascompetition.Repository.AgentRepository;
 import org.slf4j.Logger;
@@ -81,7 +82,9 @@ public class GameScheduler {
      * @return The list of agents grouped in matches
      */
     public List<List<Agent>> getGameGroups() {
-        List<Agent> agents = new ArrayList<>(agentService.getAllAgents());
+        List<Agent> agents = new ArrayList<>(agentService.getAllAgents().stream()
+                .filter(agent -> agent.getStatus() == AgentStatus.AVAILABLE)
+                .toList());
         Collections.shuffle(agents);
         List<List<Agent>> matches = new ArrayList<>();
         for (int i = 0; i + 3 < agents.size(); i += 4) {

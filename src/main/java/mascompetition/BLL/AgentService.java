@@ -1,10 +1,7 @@
 package mascompetition.BLL;
 
 import mascompetition.DTO.CreateAgentDTO;
-import mascompetition.Entity.Agent;
-import mascompetition.Entity.GlickoRating;
-import mascompetition.Entity.Team;
-import mascompetition.Entity.User;
+import mascompetition.Entity.*;
 import mascompetition.Exception.ActionForbiddenException;
 import mascompetition.Exception.AgentStorageException;
 import mascompetition.Exception.BadInformationException;
@@ -78,7 +75,7 @@ public class AgentService {
         Path agentPath = Path.of(agentDir + team.getId() + '/' + agentID + '/' + createAgentDTO.getName() + '_' + createAgentDTO.getVersionNumber() + ".java");
 
         try {
-            directoryService.saveFile(file, agentPath);
+            directoryService.saveFile(file.getInputStream(), agentPath);
         } catch (IOException e) {
             throw new AgentStorageException(e.getMessage());
         }
@@ -91,6 +88,7 @@ public class AgentService {
                 .name(createAgentDTO.getName())
                 .versionNumber(createAgentDTO.getVersionNumber())
                 .glickoRating(GlickoRating.newRating())
+                .status(AgentStatus.AVAILABLE)
                 .build();
 
         try {
@@ -118,5 +116,16 @@ public class AgentService {
         List<Agent> agents = agentRepository.findAllByOrderByRatingDesc();
         logger.info("Loaded {} agents into memory", agents.size());
         return agents;
+    }
+
+    /**
+     * Updates the agent's status
+     *
+     * @param agent       The agent to update
+     * @param agentStatus The new status of the agent
+     */
+    public void setAgentStatus(Agent agent, AgentStatus agentStatus) {
+        agent.setStatus(agentStatus);
+        agentRepository.save(agent);
     }
 }
