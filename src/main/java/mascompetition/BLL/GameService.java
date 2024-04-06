@@ -95,11 +95,20 @@ public class GameService {
                 getPlayerPath(3)
         );
 
+        builder.redirectErrorStream(true);
+        builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+
         logger.info("Starting engine");
         Process process = builder.start();
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    logger.info(line);
+                }
+            }
             throw new EngineFailureException(exitCode);
         }
 
@@ -117,7 +126,7 @@ public class GameService {
 
     private void handleEngineFailure(int exitCode, List<Agent> agents) {
         switch (exitCode) {
-            case 2, 3 -> logger.error("Internal error occurred within the engine");
+            case 2, 3 -> logger.error("Internal error occurred within the engine with code {}", exitCode);
             case 4, 5, 6, 7 -> {
                 logger.error("Compilation failed within the engine (This should have been caught before the engine)");
                 logger.error("Compilation failed for player {}", exitCode - 4);
@@ -128,17 +137,17 @@ public class GameService {
                 logger.warn("Player {} doesn't implement the interface correctly", exitCode - 16);
                 agentService.setAgentStatus(agents.get(exitCode - 16), AgentStatus.INVALID_SUBMISSION);
             }
-            case 29, 30, 31, 32 -> {
-                logger.warn("Player {} timed out on their turn", exitCode - 29);
-                agentService.setAgentStatus(agents.get(exitCode - 29), AgentStatus.TIMED_OUT);
+            case 28, 29, 30, 31 -> {
+                logger.warn("Player {} timed out on their turn", exitCode - 28);
+                agentService.setAgentStatus(agents.get(exitCode - 28), AgentStatus.TIMED_OUT);
             }
-            case 33, 34, 35, 36 -> {
-                logger.warn("Player {} made an illegal move on their turn", exitCode - 33);
-                agentService.setAgentStatus(agents.get(exitCode - 33), AgentStatus.ILLEGAL_MOVE);
+            case 32, 33, 34, 35 -> {
+                logger.warn("Player {} made an illegal move on their turn", exitCode - 32);
+                agentService.setAgentStatus(agents.get(exitCode - 32), AgentStatus.ILLEGAL_MOVE);
             }
-            case 37, 38, 39, 40 -> {
-                logger.warn("Player {} ran out of memory on their turn", exitCode - 37);
-                agentService.setAgentStatus(agents.get(exitCode - 37), AgentStatus.OUT_OF_MEMORY);
+            case 36, 37, 38, 39 -> {
+                logger.warn("Player {} ran out of memory on their turn", exitCode - 36);
+                agentService.setAgentStatus(agents.get(exitCode - 36), AgentStatus.OUT_OF_MEMORY);
             }
             default -> logger.error("Unmapped error code received {}", exitCode);
 
