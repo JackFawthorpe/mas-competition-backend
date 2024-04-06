@@ -6,6 +6,7 @@ import com.github.javaparser.ast.expr.Name;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.AgentStatus;
 import mascompetition.Exception.AgentParseException;
+import mascompetition.Exception.EngineFailureException;
 import mascompetition.Exception.LoadAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class GameService {
      * @return If successful, the amount of points each player scored during the game
      * Else it returns an empty list
      */
-    public List<Integer> runGame(List<Agent> agents) {
+    public List<Integer> runGame(List<Agent> agents) throws IOException, LoadAgentException, EngineFailureException, InterruptedException {
         try {
             logger.info("Running game with the following agents: {} {} {} {}",
                     agents.get(0).getId(),
@@ -62,15 +63,9 @@ public class GameService {
                     agents.get(3).getId());
             loadPlayers(agents);
             return runProcess();
-
-        } catch (Exception e) {
-            logger.warn("Game failed to run with agents: {} {} {} {} with exception {}",
-                    agents.get(0).getId(),
-                    agents.get(1).getId(),
-                    agents.get(2).getId(),
-                    agents.get(3).getId(),
-                    e.getMessage());
-            return List.of();
+        } catch (EngineFailureException e) {
+            handleEngineFailure(e.getExitCode(), agents);
+            throw e;
         }
     }
 
@@ -91,7 +86,7 @@ public class GameService {
      *
      * @return The scores of each of the agents
      */
-    private List<Integer> runProcess() throws IOException, InterruptedException {
+    private List<Integer> runProcess() throws IOException, InterruptedException, EngineFailureException {
         logger.info("Loading engine");
         ProcessBuilder builder = new ProcessBuilder("java", "-jar", enginePath,
                 getPlayerPath(0),
@@ -105,9 +100,7 @@ public class GameService {
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            handleEngineFailure(exitCode);
-            logger.error("Engine failed with exit code {}", exitCode);
-            return List.of();
+            throw new EngineFailureException(exitCode);
         }
 
         logger.info("Engine ran successfully");
@@ -120,6 +113,36 @@ public class GameService {
             integers.add(Integer.parseInt(line.trim()));
         }
         return integers;
+    }
+
+    private void handleEngineFailure(int exitCode, List<Agent> agents) {
+        switch (exitCode) {
+            case 2, 3 -> logger.error("Internal error occurred within the engine");
+            case 4, 5, 6, 7 -> {
+                logger.error("Compilation failed within the engine (This should have been caught before the engine)");
+                logger.error("Compilation failed for player {}", exitCode - 4);
+            }
+            case 8, 9, 10, 11 ->
+                    logger.error("Loading class unexpectedly failed after compilation for player {}", exitCode - 8);
+            case 16, 17, 18, 19 -> {
+                logger.warn("Player {} doesn't implement the interface correctly", exitCode - 16);
+                agentService.setAgentStatus(agents.get(exitCode - 16), AgentStatus.INVALID_SUBMISSION);
+            }
+            case 29, 30, 31, 32 -> {
+                logger.warn("Player {} timed out on their turn", exitCode - 29);
+                agentService.setAgentStatus(agents.get(exitCode - 29), AgentStatus.TIMED_OUT);
+            }
+            case 33, 34, 35, 36 -> {
+                logger.warn("Player {} made an illegal move on their turn", exitCode - 33);
+                agentService.setAgentStatus(agents.get(exitCode - 33), AgentStatus.ILLEGAL_MOVE);
+            }
+            case 37, 38, 39, 40 -> {
+                logger.warn("Player {} ran out of memory on their turn", exitCode - 37);
+                agentService.setAgentStatus(agents.get(exitCode - 37), AgentStatus.OUT_OF_MEMORY);
+            }
+            default -> logger.error("Unmapped error code received {}", exitCode);
+
+        }
     }
 
     private void loadPlayer(Agent agent, int playerNumber) throws LoadAgentException {
@@ -159,10 +182,6 @@ public class GameService {
      */
     private String getPlayerPath(int player) {
         return String.format("%splayers/Player_%d.java", agentDir, player);
-    }
-
-    private void handleEngineFailure(int exitCode) {
-
     }
 
     /**

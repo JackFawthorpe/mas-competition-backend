@@ -8,4 +8,5 @@ public enum AgentStatus {
     ILLEGAL_MOVE, // At some point the agent made an illegal move
     TIMED_OUT, // The agent took too long for its turn
     INVALID_SUBMISSION, // The compilation of the agent or the imports it used were invalid
+    OUT_OF_MEMORY, // The agent was detected using too much memory
 }

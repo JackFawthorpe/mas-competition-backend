@@ -52,15 +52,16 @@ public class GameScheduler {
         logger.info("Scheduled Event Started: Agent Evaluation");
 
         for (List<Agent> agentGroup : getGameGroups()) {
-            List<Integer> agentPoints = gameService.runGame(agentGroup);
-
-            // If the game didn't run successfully
-            if (agentPoints.size() != 4) {
-                logger.error("Game failed to run with agents {} {} {} {}",
+            List<Integer> agentPoints;
+            try {
+                agentPoints = gameService.runGame(agentGroup);
+            } catch (Exception e) {
+                logger.warn("Game failed to run with the following agents {} {} {} {} : With exception {}",
                         agentGroup.get(0).getId(),
                         agentGroup.get(1).getId(),
                         agentGroup.get(2).getId(),
-                        agentGroup.get(3).getId());
+                        agentGroup.get(3).getId(),
+                        e.getMessage());
                 continue;
             }
 
