@@ -19,5 +19,5 @@ public class AgentListDTO {
     private String teamName;
     private UUID agentId;
     private UUID teamId;
-
+    private String status;
 }

@@ -31,6 +31,7 @@ public class LeaderboardService {
                         .teamId(agent.getTeam().getId())
                         .teamName(agent.getTeam().getName())
                         .rating((int) Math.floor(agent.getGlickoRating().getRating()))
+                        .status(agent.getStatus().toString())
                         .build()
         ).toList();
     }
