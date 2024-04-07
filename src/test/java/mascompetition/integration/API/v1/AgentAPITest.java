@@ -191,6 +191,7 @@ class AgentAPITest extends IntegrationTestFixture {
                 .agentId(agent.getId())
                 .teamId(team.getId())
                 .rating(1500)
+                .status("UNVALIDATED")
                 .build();
         when(agentRepository.findAllByOrderByRatingDesc()).thenReturn(List.of(agent));
 

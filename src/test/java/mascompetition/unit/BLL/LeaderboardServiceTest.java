@@ -41,6 +41,7 @@ class LeaderboardServiceTest extends BaseTestFixture {
                 .agentId(agent.getId())
                 .teamId(team.getId())
                 .rating(1500)
+                .status("UNVALIDATED")
                 .build();
 
         Assertions.assertEquals(1, result.size());
