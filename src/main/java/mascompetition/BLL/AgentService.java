@@ -1,10 +1,7 @@
 package mascompetition.BLL;
 
 import mascompetition.DTO.CreateAgentDTO;
-import mascompetition.Entity.Agent;
-import mascompetition.Entity.GlickoRating;
-import mascompetition.Entity.Team;
-import mascompetition.Entity.User;
+import mascompetition.Entity.*;
 import mascompetition.Exception.ActionForbiddenException;
 import mascompetition.Exception.AgentStorageException;
 import mascompetition.Exception.BadInformationException;
@@ -19,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,7 +76,7 @@ public class AgentService {
         Path agentPath = Path.of(agentDir + team.getId() + '/' + agentID + '/' + createAgentDTO.getName() + '_' + createAgentDTO.getVersionNumber() + ".java");
 
         try {
-            directoryService.saveFile(file, agentPath);
+            directoryService.saveFile(file.getInputStream(), agentPath);
         } catch (IOException e) {
             throw new AgentStorageException(e.getMessage());
         }
@@ -91,6 +89,7 @@ public class AgentService {
                 .name(createAgentDTO.getName())
                 .versionNumber(createAgentDTO.getVersionNumber())
                 .glickoRating(GlickoRating.newRating())
+                .status(AgentStatus.UNVALIDATED)
                 .build();
 
         try {
@@ -115,8 +114,22 @@ public class AgentService {
      * @return The list of agents
      */
     public List<Agent> getAllAgents() {
-        List<Agent> agents = agentRepository.findAllByOrderByRatingDesc();
+        List<Agent> agents = agentRepository.findAllByOrderByRatingDesc().stream()
+                .sorted(Comparator.comparing(
+                        (Agent agent) -> agent.getStatus() == AgentStatus.AVAILABLE || agent.getStatus() == AgentStatus.UNVALIDATED ? 0 : 1))
+                .toList();
         logger.info("Loaded {} agents into memory", agents.size());
         return agents;
+    }
+
+    /**
+     * Updates the agent's status
+     *
+     * @param agent       The agent to update
+     * @param agentStatus The new status of the agent
+     */
+    public void setAgentStatus(Agent agent, AgentStatus agentStatus) {
+        agent.setStatus(agentStatus);
+        agentRepository.save(agent);
     }
 }

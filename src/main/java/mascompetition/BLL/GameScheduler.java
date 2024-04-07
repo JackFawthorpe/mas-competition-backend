@@ -2,6 +2,7 @@ package mascompetition.BLL;
 
 import jakarta.validation.constraints.NotNull;
 import mascompetition.Entity.Agent;
+import mascompetition.Entity.AgentStatus;
 import mascompetition.Entity.GlickoRating;
 import mascompetition.Repository.AgentRepository;
 import org.slf4j.Logger;
@@ -51,15 +52,16 @@ public class GameScheduler {
         logger.info("Scheduled Event Started: Agent Evaluation");
 
         for (List<Agent> agentGroup : getGameGroups()) {
-            List<Integer> agentPoints = gameService.runGame(agentGroup);
-
-            // If the game didn't run successfully
-            if (agentPoints.size() != 4) {
-                logger.error("Game failed to run with agents {} {} {} {}",
+            List<Integer> agentPoints;
+            try {
+                agentPoints = gameService.runGame(agentGroup);
+            } catch (Exception e) {
+                logger.warn("Game failed to run with the following agents {} {} {} {} : With exception {}",
                         agentGroup.get(0).getId(),
                         agentGroup.get(1).getId(),
                         agentGroup.get(2).getId(),
-                        agentGroup.get(3).getId());
+                        agentGroup.get(3).getId(),
+                        e.getMessage());
                 continue;
             }
 
@@ -81,7 +83,9 @@ public class GameScheduler {
      * @return The list of agents grouped in matches
      */
     public List<List<Agent>> getGameGroups() {
-        List<Agent> agents = new ArrayList<>(agentService.getAllAgents());
+        List<Agent> agents = new ArrayList<>(agentService.getAllAgents().stream()
+                .filter(agent -> agent.getStatus() == AgentStatus.AVAILABLE || agent.getStatus() == AgentStatus.UNVALIDATED)
+                .toList());
         Collections.shuffle(agents);
         List<List<Agent>> matches = new ArrayList<>();
         for (int i = 0; i + 3 < agents.size(); i += 4) {
@@ -104,7 +108,6 @@ public class GameScheduler {
     public void handleRatingsUpdate(@NotNull List<GlickoRating> ratings, @NotNull List<Integer> points) {
         logger.info("Starting Ratings calculations");
         for (int i = 0; i < ratings.size(); i++) {
-
             List<Double> scores = new ArrayList<>();
             List<GlickoRating> opponents = new ArrayList<>();
 

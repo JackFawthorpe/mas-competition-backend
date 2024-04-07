@@ -1,9 +1,9 @@
 package mascompetition.BLL;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -17,13 +17,13 @@ public class DirectoryService {
     /**
      * Saves the provided file at the given path
      *
-     * @param file The file
-     * @param path The path
+     * @param inputStream The data to store in the given path
+     * @param path        The path
      * @throws IOException Thrown if something goes wrong
      */
-    public void saveFile(MultipartFile file, Path path) throws IOException {
+    public void saveFile(InputStream inputStream, Path path) throws IOException {
         Files.createDirectories(path.getParent());
-        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**

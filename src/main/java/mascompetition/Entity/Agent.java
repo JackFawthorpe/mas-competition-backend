@@ -16,7 +16,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class Agent {
-    
+
     @Id
     @Column(columnDefinition = "uuid")
     private UUID id;
@@ -41,6 +41,9 @@ public class Agent {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GlickoRating glickoRating;
+
+    @Enumerated(EnumType.STRING)
+    private AgentStatus status;
 
     public Agent() {
         // JPA Empty Args Constructor
