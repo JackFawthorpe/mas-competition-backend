@@ -124,6 +124,12 @@ public class GameService {
         return integers;
     }
 
+    /**
+     * Maps exit codes that can be supplied by the engine to logging statements and actions within the backend
+     *
+     * @param exitCode The exit code provided by the engine
+     * @param agents   the list of agents that were in the engine when it happened
+     */
     private void handleEngineFailure(int exitCode, List<Agent> agents) {
         switch (exitCode) {
             case 2, 3 -> logger.error("Internal error occurred within the engine with code {}", exitCode);
@@ -154,6 +160,17 @@ public class GameService {
         }
     }
 
+    /**
+     * Handles loading an agent from storage into the player directory for use
+     * Handles:
+     * - Parsing the agent
+     * - Validating on first sight of the agent
+     * - Storing the file with Player_X for the engine
+     *
+     * @param agent        The agent to load
+     * @param playerNumber The index of the player (0, 1, 2, 3)
+     * @throws LoadAgentException Thrown when there is an issue loading the player
+     */
     private void loadPlayer(Agent agent, int playerNumber) throws LoadAgentException {
         Path path = agentService.getAgentPath(agent);
         CompilationUnit compilationUnit;

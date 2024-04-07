@@ -22,12 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * The AgentParser is responsible for functionality pertaining to the parsing and reading of user submitted agent files
+ */
 @Service
 public class AgentParser {
 
     Logger logger = LoggerFactory.getLogger(AgentParser.class);
 
     /**
+     * Checks whether the submitted agent has used any illegal methods within its source
+     * This includes checking imports as well as the use of System / Compiler / Threading
+     *
      * @param compilationUnit The agent source code to validate
      * @return true if the agent is valid
      */
@@ -35,12 +41,24 @@ public class AgentParser {
         return validateImports(compilationUnit) && validateLangUsage(compilationUnit);
     }
 
+    /**
+     * Parses the imports of the source code and checks they are all allowed
+     *
+     * @param compilationUnit The source code of the agent
+     * @return True if the agent has no invalid imports
+     */
     private boolean validateImports(CompilationUnit compilationUnit) {
         ImportVisitor importVisitor = new ImportVisitor();
         compilationUnit.accept(importVisitor, null);
         return importVisitor.isValid();
     }
 
+    /**
+     * Checks if the usage of the java.lang (auto-imported) package is safe
+     *
+     * @param compilationUnit The source code of the agent
+     * @return True if none of the usages are illegal
+     */
     private boolean validateLangUsage(CompilationUnit compilationUnit) {
         AtomicBoolean isValid = new AtomicBoolean(true);
         compilationUnit.findAll(Statement.class).forEach(method -> {
@@ -69,6 +87,15 @@ public class AgentParser {
         return isValid.get();
     }
 
+    /**
+     * Opens the file at the path and turns it into a form that the JavaParser library can interpret
+     *
+     * @param path  The path of the agent
+     * @param agent The agent the file pertains to
+     * @return The compilation unit oif the source file
+     * @throws LoadAgentException  Thrown if the agent cannot be loaded from the file
+     * @throws AgentParseException Thrown if the source code is invalid (won't compile)
+     */
     public CompilationUnit getCompilationUnit(Path path, Agent agent) throws LoadAgentException, AgentParseException {
         File file = new File(path.toUri());
         try (FileInputStream in = new FileInputStream(file)) {
@@ -80,6 +107,9 @@ public class AgentParser {
         }
     }
 
+    /**
+     * Class for handling import checking
+     */
     private static class ImportVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<String> whitelist;
@@ -88,7 +118,7 @@ public class AgentParser {
 
         ImportVisitor() {
             this.isValid = true;
-            List<String> whitelist = new ArrayList<>();
+            whitelist = new ArrayList<>();
             whitelist.add("java.util.Collection");
             whitelist.add("java.util.Comparator");
             whitelist.add("java.util.Iterator");
@@ -106,13 +136,18 @@ public class AgentParser {
             whitelist.add("java.util.Random");
             whitelist.add("api");
             whitelist.add("dominion"); // TODO Remove once API is complete
-            this.whitelist = whitelist;
         }
 
         public boolean isValid() {
             return isValid;
         }
 
+        /**
+         * This will be called every time an import is detected within the compilation unit
+         *
+         * @param importDeclaration an import statement
+         * @param arg               No clue
+         */
         @Override
         public void visit(ImportDeclaration importDeclaration, Void arg) {
             if (!isValid) return;
