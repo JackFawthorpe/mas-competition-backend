@@ -26,7 +26,7 @@ class TeamAPITest extends IntegrationTestFixture {
     @WithAnonymousUser
     void getTeam_notAuthenticated_401() throws Exception {
         mockMvc.perform(get("/api/v1/teams/" + UUID.randomUUID()))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

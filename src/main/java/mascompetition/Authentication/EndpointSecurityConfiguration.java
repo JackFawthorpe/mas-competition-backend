@@ -66,7 +66,6 @@ public class EndpointSecurityConfiguration {
                                 .failureHandler(masAuthenticationResponseHandler)
                                 .usernameParameter("email")
                                 .passwordParameter("password")
-
                                 .permitAll()
                 ).logout(logout ->
                         logout
@@ -75,7 +74,9 @@ public class EndpointSecurityConfiguration {
                                 .logoutSuccessHandler(masAuthenticationLogoutResponseHandler)
                                 .invalidateHttpSession(true)
                                 .logoutSuccessUrl(LOGIN_ENDPOINT))
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(new MasFailedAuthenticationResponse()));
 
         return http.build();
     }

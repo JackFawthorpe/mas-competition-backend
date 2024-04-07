@@ -67,7 +67,7 @@ class AgentAPITest extends IntegrationTestFixture {
                         .part(new MockPart("data", "", toSend.getBytes(), MediaType.APPLICATION_JSON))
                         .file(agentCodeFile)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
 
