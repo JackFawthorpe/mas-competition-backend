@@ -1,10 +1,7 @@
 package mascompetition;
 
 
-import mascompetition.Entity.Agent;
-import mascompetition.Entity.GlickoRating;
-import mascompetition.Entity.Team;
-import mascompetition.Entity.User;
+import mascompetition.Entity.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -58,6 +55,7 @@ public class BaseTestFixture {
                 .versionNumber(1)
                 .team(mock(Team.class))
                 .glickoRating(GlickoRating.newRating())
+                .status(AgentStatus.UNVALIDATED)
                 .authors(List.of(mock(User.class)));
     }
 

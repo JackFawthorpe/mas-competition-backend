@@ -167,6 +167,18 @@ public class GameService {
             throw new LoadAgentException(String.format("Failed to parse agent %s", agent.getId()));
         }
 
+        if (agent.getStatus() == AgentStatus.UNVALIDATED) {
+            boolean isValid = agentParser.validateSourceCode(compilationUnit);
+            if (!isValid) {
+                logger.warn("Detected Illegal imports for agent {}", agent.getId());
+                agentService.setAgentStatus(agent, AgentStatus.ILLEGAL_IMPORTS);
+                throw new LoadAgentException(String.format("Agent %s has illegal imports", agent.getId()));
+            } else {
+                agentService.setAgentStatus(agent, AgentStatus.AVAILABLE);
+            }
+        }
+
+
         compilationUnit.setPackageDeclaration(new PackageDeclaration(new Name("api.agent")));
         String className = extractFileName(path.toString());
         compilationUnit.getClassByName(className).get().setName(String.format("Player_%d", playerNumber));

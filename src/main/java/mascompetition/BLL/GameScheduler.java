@@ -84,7 +84,7 @@ public class GameScheduler {
      */
     public List<List<Agent>> getGameGroups() {
         List<Agent> agents = new ArrayList<>(agentService.getAllAgents().stream()
-                .filter(agent -> agent.getStatus() == AgentStatus.AVAILABLE)
+                .filter(agent -> agent.getStatus() == AgentStatus.AVAILABLE || agent.getStatus() == AgentStatus.UNVALIDATED)
                 .toList());
         Collections.shuffle(agents);
         List<List<Agent>> matches = new ArrayList<>();
@@ -108,7 +108,6 @@ public class GameScheduler {
     public void handleRatingsUpdate(@NotNull List<GlickoRating> ratings, @NotNull List<Integer> points) {
         logger.info("Starting Ratings calculations");
         for (int i = 0; i < ratings.size(); i++) {
-
             List<Double> scores = new ArrayList<>();
             List<GlickoRating> opponents = new ArrayList<>();
 

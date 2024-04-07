@@ -6,6 +6,8 @@ import mascompetition.BLL.GameService;
 import mascompetition.BaseTestFixture;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.GlickoRating;
+import mascompetition.Exception.EngineFailureException;
+import mascompetition.Exception.LoadAgentException;
 import mascompetition.Repository.AgentRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +122,7 @@ class GameSchedulerTest extends BaseTestFixture {
     }
 
     @Test
-    void runGames_Bluesky() {
+    void runGames_Bluesky() throws EngineFailureException, IOException, LoadAgentException, InterruptedException {
         List<Agent> agents = new ArrayList();
 
         for (int i = 0; i < 4; i++) {
@@ -135,14 +138,14 @@ class GameSchedulerTest extends BaseTestFixture {
     }
 
     @Test
-    void runGames_EngineFailure_NoAgentSaving() {
+    void runGames_EngineFailure_NoAgentSaving() throws EngineFailureException, IOException, LoadAgentException, InterruptedException {
         List<Agent> agents = new ArrayList();
 
         for (int i = 0; i < 4; i++) {
             agents.add(getAgent().build());
         }
 
-        when(gameService.runGame(any())).thenReturn(List.of());
+        when(gameService.runGame(any())).thenThrow(new LoadAgentException("Failed to load agent"));
         when(agentService.getAllAgents()).thenReturn(agents);
 
         gameScheduler.runGames();
@@ -151,7 +154,7 @@ class GameSchedulerTest extends BaseTestFixture {
     }
 
     @Test
-    void runGames_IntegrationTest_OnlySavesPlayedAgents() {
+    void runGames_IntegrationTest_OnlySavesPlayedAgents() throws EngineFailureException, IOException, LoadAgentException, InterruptedException {
         List<Agent> agents = new ArrayList();
 
         for (int i = 0; i < 5; i++) { // One of these wont be saved

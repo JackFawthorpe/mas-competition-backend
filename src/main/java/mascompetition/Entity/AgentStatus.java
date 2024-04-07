@@ -9,4 +9,6 @@ public enum AgentStatus {
     TIMED_OUT, // The agent took too long for its turn
     INVALID_SUBMISSION, // The compilation of the agent or the imports it used were invalid
     OUT_OF_MEMORY, // The agent was detected using too much memory
+    ILLEGAL_IMPORTS,
+    UNVALIDATED // If the agents source code has not been validated
 }

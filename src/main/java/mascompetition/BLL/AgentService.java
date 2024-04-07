@@ -88,7 +88,7 @@ public class AgentService {
                 .name(createAgentDTO.getName())
                 .versionNumber(createAgentDTO.getVersionNumber())
                 .glickoRating(GlickoRating.newRating())
-                .status(AgentStatus.AVAILABLE)
+                .status(AgentStatus.UNVALIDATED)
                 .build();
 
         try {
