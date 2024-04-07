@@ -2,6 +2,7 @@ package mascompetition.BLL;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Name;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.AgentStatus;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,8 +180,10 @@ public class GameService {
 
 
         compilationUnit.setPackageDeclaration(new PackageDeclaration(new Name("api.agent")));
-        String className = extractFileName(path.toString());
-        compilationUnit.getClassByName(className).get().setName(String.format("Player_%d", playerNumber));
+
+        for (ClassOrInterfaceDeclaration classDeclaration : compilationUnit.findAll(ClassOrInterfaceDeclaration.class)) {
+            classDeclaration.setName(String.format("Player_%d", playerNumber));
+        }
 
         // Save the modified file
         try {
@@ -203,23 +205,5 @@ public class GameService {
      */
     private String getPlayerPath(int player) {
         return String.format("%splayers/Player_%d.java", agentDir, player);
-    }
-
-    /**
-     * Gets the filename / classname from the agent from the path that is provided
-     *
-     * @param filePath The path of the agent
-     * @return The expected name of the agent
-     */
-    private static String extractFileName(String filePath) {
-        Path path = Paths.get(filePath);
-        Path fileNamePath = path.getFileName();
-        String fileName = fileNamePath.toString();
-        int lastDotIndex = fileName.lastIndexOf('.');
-        if (lastDotIndex != -1) {
-            return fileName.substring(0, lastDotIndex);
-        } else {
-            return fileName;
-        }
     }
 }

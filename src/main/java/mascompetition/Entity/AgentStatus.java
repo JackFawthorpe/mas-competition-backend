@@ -5,10 +5,10 @@ package mascompetition.Entity;
  */
 public enum AgentStatus {
     AVAILABLE, // The agent is still viable and competing
+    UNVALIDATED, // If the agents source code has not been validated
     ILLEGAL_MOVE, // At some point the agent made an illegal move
     TIMED_OUT, // The agent took too long for its turn
     INVALID_SUBMISSION, // The compilation of the agent or the imports it used were invalid
     OUT_OF_MEMORY, // The agent was detected using too much memory
-    ILLEGAL_IMPORTS,
-    UNVALIDATED // If the agents source code has not been validated
+    ILLEGAL_IMPORTS
 }

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,7 +114,10 @@ public class AgentService {
      * @return The list of agents
      */
     public List<Agent> getAllAgents() {
-        List<Agent> agents = agentRepository.findAllByOrderByRatingDesc();
+        List<Agent> agents = agentRepository.findAllByOrderByRatingDesc().stream()
+                .sorted(Comparator.comparing(
+                        (Agent agent) -> agent.getStatus() == AgentStatus.AVAILABLE || agent.getStatus() == AgentStatus.UNVALIDATED ? 0 : 1))
+                .toList();
         logger.info("Loaded {} agents into memory", agents.size());
         return agents;
     }
