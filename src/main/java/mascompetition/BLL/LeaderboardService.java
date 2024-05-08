@@ -52,7 +52,8 @@ public class LeaderboardService {
                     SELECT t.id AS teamId, t.name AS teamName, MAX(ar.rating) AS agentRating, ar.agent_id AS agentId, ar.name as agentName
                     FROM team t JOIN (SELECT a.id AS agent_id, gr.rating, a.team_id, a.name, a.version_number
                                      FROM agent a JOIN glicko_rating gr ON a.glicko_rating_id = gr.id
-                                     WHERE a.status = "AVAILABLE") ar ON t.id = ar.team_id 
+                                     WHERE a.status = "AVAILABLE") ar ON t.id = ar.team_id                 
+                    GROUP BY t.id
                     ORDER BY MAX(ar.rating) DESC
                 """;
         Query query = em.createNativeQuery(sqlString, "teamLeaderboardDTOResult");
