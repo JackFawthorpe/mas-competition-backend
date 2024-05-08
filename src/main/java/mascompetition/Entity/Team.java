@@ -5,13 +5,28 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import mascompetition.DTO.TeamDTO;
+import mascompetition.DTO.TeamLeaderboardDTO;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
  * JPA entity for the representation of a team
+ * <p>
+ * The teamLeaderboardDTOResult is used within {@link mascompetition.Repository.TeamRepository}
+ * to fetch the highest rated teams
  */
+@SqlResultSetMapping(name = "teamLeaderboardDTOResult",
+        classes = {
+                @ConstructorResult(targetClass = TeamLeaderboardDTO.class,
+                        columns = {
+                                @ColumnResult(name = "teamId"),
+                                @ColumnResult(name = "teamName"),
+                                @ColumnResult(name = "agentId"),
+                                @ColumnResult(name = "agentRating"),
+                                @ColumnResult(name = "agentName")
+                        })
+        })
 @Builder
 @Entity
 @Data

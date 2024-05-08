@@ -113,12 +113,14 @@ public class AgentParser {
     private static class ImportVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<String> whitelist;
+        private final List<String> blacklist;
         Logger logger = LoggerFactory.getLogger(ImportVisitor.class);
         private boolean isValid;
 
         ImportVisitor() {
             this.isValid = true;
             whitelist = new ArrayList<>();
+            blacklist = new ArrayList<>();
             whitelist.add("java.util.Collection");
             whitelist.add("java.util.Comparator");
             whitelist.add("java.util.Iterator");
@@ -135,7 +137,7 @@ public class AgentParser {
             whitelist.add("java.util.Optional");
             whitelist.add("java.util.Random");
             whitelist.add("api");
-            whitelist.add("dominion"); // TODO Remove once API is complete
+            blacklist.add("api.agent");
         }
 
         public boolean isValid() {
@@ -152,6 +154,13 @@ public class AgentParser {
         public void visit(ImportDeclaration importDeclaration, Void arg) {
             if (!isValid) return;
             String importName = importDeclaration.getNameAsString();
+            for (String invalidImport : blacklist) {
+                if (importName.contains(invalidImport)) {
+                    logger.warn("Detected use of blacklisted import {}", invalidImport);
+                    this.isValid = false;
+                    return;
+                }
+            }
             for (String validImport : whitelist) {
                 if (importName.startsWith(validImport)) {
                     super.visit(importDeclaration, arg);
@@ -162,5 +171,4 @@ public class AgentParser {
             this.isValid = false;
         }
     }
-
 }
