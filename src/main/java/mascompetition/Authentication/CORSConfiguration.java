@@ -20,8 +20,7 @@ public class CORSConfiguration implements WebMvcConfigurer {
         registry
                 .addMapping("/**")
                 .allowedOrigins("http://localhost:3000",                 // Development
-                        "https://mas-competition.csse.canterbury.ac.nz", // Front-end assets are served from here
-                        "http://132.181.18.82"                           // Backdoor to be removed once DNS is setup
+                        "https://mas-competition.csse.canterbury.ac.nz"  // Front-end assets are served from here
                 )
                 .allowedMethods("*")
                 .allowedHeaders("*")
