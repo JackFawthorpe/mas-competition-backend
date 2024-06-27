@@ -1,6 +1,7 @@
 package mascompetition.BLL;
 
 import jakarta.validation.constraints.NotNull;
+import mascompetition.Email.EmailService;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.AgentStatus;
 import mascompetition.Entity.GlickoRating;
@@ -25,8 +26,8 @@ import java.util.List;
 @Service
 public class GameScheduler {
 
+    private final double MAX_ACCEPTABLE_RATING_CHANGE = 2000.0f;
     Logger logger = LoggerFactory.getLogger(GameScheduler.class);
-
     @Autowired
     private GameService gameService;
 
@@ -35,6 +36,9 @@ public class GameScheduler {
 
     @Autowired
     private AgentRepository agentRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Value("${next-round-cron-expression}")
     private String nextRoundCronExpression;
@@ -124,7 +128,43 @@ public class GameScheduler {
             }
             ratings.get(i).calculateNewRating(opponents, scores);
         }
+        verifyRatings(ratings, points);
         ratings.forEach(GlickoRating::updateRating);
+    }
+
+    /**
+     * This is a clamping function to avoid climb to infinity rating scenarios.
+     * At the time of writing this, although ratings initially function as expected overtime 1-2 agents will have their ratings grow exponentially
+     * This method is responsible for firing a warning email to increase visibility of when the issue happens as well as provide inputs to identify why it may be happening
+     * <p>
+     * It will also clamp the ratings growth to avoid visible behaviour problems
+     */
+    public void verifyRatings(List<GlickoRating> glickoRatings, List<Integer> points) {
+        boolean cancelledRatingChange = false;
+        for (GlickoRating rating : glickoRatings) {
+            if (Math.abs(rating.getRating() - rating.getNextRating()) > MAX_ACCEPTABLE_RATING_CHANGE) {
+                cancelledRatingChange = true;
+            }
+        }
+
+        if (cancelledRatingChange) {
+            logger.warn("Detected Abnormal rating change with agents {}", glickoRatings);
+            emailService.sendSimpleMessage(
+                    "fawthorp878@gmail.com",
+                    "MAS-COMPETITION CRITICAL RATING ERROR",
+                    "Rating change significantly higher than predicted. Printing State Dump.\n\nAgent ID's:\n"
+                            + glickoRatings.stream().map(GlickoRating::getId).toList()
+                            + "\n\nCurrent Ratings\n\n"
+                            + glickoRatings.stream().map(GlickoRating::getRating).toList()
+                            + "\n\nNext Ratings\n\n"
+                            + glickoRatings.stream().map(GlickoRating::getNextRating).toList()
+                            + "\n\nPoints:\n\n"
+                            + points.toString()
+            );
+            for (GlickoRating rating : glickoRatings) {
+                rating.cancelRatingChange();
+            }
+        }
     }
 
     /**

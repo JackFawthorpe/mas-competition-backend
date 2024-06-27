@@ -12,7 +12,16 @@ class GlickoRatingTest {
      * This is the example from http://www.glicko.net/glicko/glicko2.pdf
      */
     @Test
-    void test() {
+    void exampleRatingUpdate() {
+        GlickoRating player = getTestPlayer();
+        Assertions.assertEquals(1500.0, player.getRating()); // It shouldn't change until an update is triggered
+        Assertions.assertEquals(200.0, player.getDeviation()); // It shouldn't change until an update is triggered
+        player.updateRating();
+        Assertions.assertTrue(Math.abs(player.getRating() - 1464.06) < 0.01);
+        Assertions.assertTrue(Math.abs(player.getDeviation() - 151.52) < 0.01);
+    }
+
+    private GlickoRating getTestPlayer() {
         GlickoRating player = GlickoRating.builder()
                 .rating(1500)
                 .deviation(200)
@@ -39,10 +48,18 @@ class GlickoRatingTest {
 
         List<Double> scores = List.of(1.0, 0.0, 0.0);
         player.calculateNewRating(opponents, scores);
+        return player;
+    }
+
+    @Test
+    void cancelRating_CalledPriorToUpdating_CausesNoChange() {
+        GlickoRating player = getTestPlayer();
         Assertions.assertEquals(1500.0, player.getRating()); // It shouldn't change until an update is triggered
         Assertions.assertEquals(200.0, player.getDeviation()); // It shouldn't change until an update is triggered
+        player.cancelRatingChange();
         player.updateRating();
-        Assertions.assertTrue(Math.abs(player.getRating() - 1464.06) < 0.01);
-        Assertions.assertTrue(Math.abs(player.getDeviation() - 151.52) < 0.01);
+        Assertions.assertTrue(Math.abs(player.getRating() - 1500.0) < 0.01);
+        Assertions.assertTrue(Math.abs(player.getDeviation() - 200.0) < 0.01);
+
     }
 }

@@ -9,6 +9,15 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate.ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    transport.protocol: "smtp"
+    username: s302g500
+    password: hfypcyoinygzjpao
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
 server:
   port: 4000
 agentStoragePath: '/app/agents/'

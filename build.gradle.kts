@@ -22,6 +22,8 @@ dependencies {
     implementation("com.github.javaparser:javaparser-symbol-solver-core:3.25.9")
 
     // Springboot
+    // Email Service import
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.0.6")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter
     implementation("org.springframework.boot:spring-boot-starter:3.2.3")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jdbc

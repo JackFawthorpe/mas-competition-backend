@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import static mascompetition.Utility.GlickoCalculator.*;
 @Entity
 @Data
 @AllArgsConstructor
+@ToString
 public class GlickoRating {
 
     @Id
@@ -30,13 +32,10 @@ public class GlickoRating {
     private double deviation;
     @Column
     private double volatility;
-
     @Transient
     private double primeVolatility;
-
     @Transient
     private double primePhi;
-
     @Transient
     private double primeMew;
 
@@ -58,6 +57,13 @@ public class GlickoRating {
         this.deviation = TRANSITION_CONSTANT * primePhi;
         this.volatility = primeVolatility;
     }
+
+    public void cancelRatingChange() {
+        primeMew = mew(this.rating);
+        primePhi = phi(this.deviation);
+        primeVolatility = this.volatility;
+    }
+
 
     /**
      * Imma keep it real with you chief I don't know how the math behind this works all that well,
@@ -120,6 +126,10 @@ public class GlickoRating {
 
         primePhi = primePhi(phiStar, v);
         primeMew = mew + primePhi * primePhi * delta / v;
+    }
+
+    public double getNextRating() {
+        return TRANSITION_CONSTANT * primeMew + INITIAL_RATING;
     }
 
 }

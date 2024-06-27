@@ -35,8 +35,13 @@ public class GlickoCalculator {
         return opponentG * opponentG * expectedResult * (1 - expectedResult);
     }
 
+    /**
+     * Calculates the E value of the Glicko Update
+     * It also clamps the value so that it sits in the domain (0, 1)
+     * Doubles aren't accurate enough to represent the asymptote
+     */
     public static double E(double mew, double opponentMew, double opponentPhi) {
-        return 1 / (1 + Math.exp(-g(opponentPhi) * (mew - opponentMew)));
+        return Math.max(Math.min(1 / (1 + Math.exp(-g(opponentPhi) * (mew - opponentMew))), 0.9999999999999999), 5.0e-324);
     }
 
     public static double mew(double rating) {

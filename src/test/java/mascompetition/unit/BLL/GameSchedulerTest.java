@@ -4,6 +4,7 @@ import mascompetition.BLL.AgentService;
 import mascompetition.BLL.GameScheduler;
 import mascompetition.BLL.GameService;
 import mascompetition.BaseTestFixture;
+import mascompetition.Email.EmailService;
 import mascompetition.Entity.Agent;
 import mascompetition.Entity.GlickoRating;
 import mascompetition.Exception.EngineFailureException;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.AssertionErrors.fail;
@@ -37,6 +39,9 @@ class GameSchedulerTest extends BaseTestFixture {
 
     @Mock
     private AgentRepository agentRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @Test
     void handleRatingsUpdate_bluesky() {
@@ -170,5 +175,26 @@ class GameSchedulerTest extends BaseTestFixture {
 
         verify(agentRepository, times(1)).saveAll(argumentCaptor.capture());
         Assertions.assertEquals(4, argumentCaptor.getValue().size());
+    }
+
+    @Test
+    void verifyRatings_ExtremeRatingChange_SendsEmail() {
+        GlickoRating mockedGlickoRating = mock(GlickoRating.class);
+        when(mockedGlickoRating.getRating()).thenReturn(1000.0);
+        when(mockedGlickoRating.getNextRating()).thenReturn(3001.0);
+        when(mockedGlickoRating.getId()).thenReturn(UUID.randomUUID());
+        gameScheduler.verifyRatings(List.of(mockedGlickoRating), List.of(1));
+
+        verify(emailService, times(1)).sendSimpleMessage(eq("fawthorp878@gmail.com"), eq("MAS-COMPETITION CRITICAL RATING ERROR"), anyString());
+    }
+
+    @Test
+    void verifyRatings_GoodRatingChange_NoEmail() {
+        GlickoRating mockedGlickoRating = mock(GlickoRating.class);
+        when(mockedGlickoRating.getRating()).thenReturn(1000.0);
+        when(mockedGlickoRating.getNextRating()).thenReturn(2999.0);
+        gameScheduler.verifyRatings(List.of(mockedGlickoRating), List.of(1));
+
+        verify(emailService, times(0)).sendSimpleMessage(any(), any(), any());
     }
 }
