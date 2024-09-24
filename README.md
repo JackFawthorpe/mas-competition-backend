@@ -22,7 +22,7 @@ password: password
 Once you are adminer you will want to create a database called ```mascompetition```
 
 ### Default Users
-
+  
 Administrator
 
 ```
